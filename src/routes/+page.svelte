@@ -16,6 +16,7 @@ onMount(() => {
     
     navigator.geolocation.getCurrentPosition(async ({coords}) => {
         console.log(coords);
+        L.marker([coords.latitude,coords.longitude], {icon: L.icon({iconUrl:'https://cdn-icons-png.freepik.com/512/5683/5683273.png',iconSize:[38,48]})}).addTo(map);
         //alert(JSON.stringify({latitude:coords.latitude,longitude:coords.longitude,accuracy:coords.accuracy}));
         //const a = await (await fetch('/api/closest-store', {method:'POST', body: JSON.stringify(coords)})).json();
         //console.log(a);
