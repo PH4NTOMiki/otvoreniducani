@@ -8,6 +8,7 @@ declare global {
 		// interface PageState {}
 		// interface Platform {}
 	}
+	L = import('@types/leaflet')
 }
 
 export {};
