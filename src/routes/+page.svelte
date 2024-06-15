@@ -15,6 +15,7 @@ onMount(() => {
 
         stores = stores.map(store => {
             store.distance = distance(store.coordinate_x, store.coordinate_y, coords.latitude, coords.longitude);
+            return store;
         // @ts-ignore
         }).sort((store1, store2) => (store1.distance - store2.distance));
     }, console.error);
@@ -28,7 +29,7 @@ onMount(() => {
                 <td>{store.id}</td>
                 <td>{store.title}</td>
                 <td>{store.address}</td>
-                <td>{store.distance || ''}</td>
+                <td>{store.distance ? (store.distance.toFixed(2) + ' km') : ''}</td>
             </tr>
     {/each}
     </table>
