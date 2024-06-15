@@ -9,7 +9,7 @@ let { stores } = data;
 
 onMount(() => {
     var map = L.map('map').setView([45.8081751, 15.9841489], 12);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
     stores.forEach(store => {
         L.marker([store.coordinate_x, store.coordinate_y]).addTo(map).bindPopup(`${store.title}<br>${store.address}<br>${store.town}`);
     });
