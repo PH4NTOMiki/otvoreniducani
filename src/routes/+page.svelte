@@ -7,7 +7,7 @@ export let data;
 onMount(() => {
     navigator.geolocation.getCurrentPosition(async ({coords}) => {
         console.log(coords);
-        alert(coords);
+        alert(JSON.stringify(coords));
         //const a = await (await fetch('/api/closest-store', {method:'POST', body: JSON.stringify(coords)})).json();
         //console.log(a);
     }, console.error);
