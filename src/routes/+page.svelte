@@ -1,4 +1,5 @@
 <script>
+import {db} from '$lib/db';
 import { onMount } from 'svelte';
 import { distance } from '$lib/distance';
 import dayjs from 'dayjs';
@@ -13,6 +14,8 @@ let coords;
 let map;
 
 onMount(() => {
+    // @ts-ignore
+    window.db = db;
     // @ts-ignore
     map = L.map('map').setView([45.8081751, 15.9841489], 12);
     // @ts-ignore
