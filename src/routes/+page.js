@@ -9,5 +9,5 @@ export async function load() {
 		return {stores};
 	}
 
-	error(404, 'Not found');
+	error(404);
 }
