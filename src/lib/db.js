@@ -3,11 +3,11 @@ import { createClient } from '@supabase/supabase-js';
 import { browser } from '$app/environment';
 import { writable } from 'svelte/store';
 let initData = {};
-if(browser){
-    // @ts-ignore
-    initData = JSON.parse(document.querySelector('template[style]')?.innerHTML);
+if(browser && document.getElementById('loaded-data')){// @ts-ignore
+    initData = JSON.parse(document.getElementById('loaded-data').innerHTML);
+    setTimeout(() => {initData = {}}, 10e3);
 }
-export const fetchCache = writable(initData);
+export const fetchCache = writable({});
 
 export const db = createClient(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_KEY, {global: {
     // @ts-ignore
@@ -35,12 +35,10 @@ export const db = createClient(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_KEY, {global
 /** @param {Response} response */
 async function responseToObject(response) {
     const _cR = response.clone();
-    const body = await _cR.text();
     /** @type {Record<string, string>} */
     const headers = {};
-    _cR.headers.forEach((value, name) => {headers[name] = value;});
-    
-    return {body, headers, status: _cR.status, statusText: _cR.statusText, url: _cR.url, type: _cR.type, redirected: _cR.redirected};
+    _cR.headers.forEach((value, name) => {headers[name] = value});
+    return {body: await _cR.text(), headers, status: _cR.status, statusText: _cR.statusText, url: _cR.url, type: _cR.type, redirected: _cR.redirected};
 }
 
 /** @param {{ body: string; headers: Record<string, string>; status: number; statusText: string; url: string; type: ResponseType; redirected: boolean; }} responseObject */
