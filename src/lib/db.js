@@ -8,9 +8,9 @@ if(browser && document.getElementById('loaded-data')){
     function base64ToBytes(base64) {
         const binString = atob(base64);
         // @ts-ignore
-        return Uint8Array.from(binString, (m) => m.codePointAt(0));
+        return new TextDecoder().decode(Uint8Array.from(binString, (m) => m.codePointAt(0)));
     } // @ts-ignore
-    initData = JSON.parse(new TextDecoder().decode(base64ToBytes(document.getElementById('loaded-data').innerHTML)));
+    initData = JSON.parse(base64ToBytes(document.getElementById('loaded-data').innerHTML));
     setTimeout(() => {initData = {}}, 10e3);
 }
 export const fetchCache = writable({});
