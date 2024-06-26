@@ -4,7 +4,7 @@ import { onMount } from 'svelte';
 import { distance } from '$lib/distance';
 import dayjs from 'dayjs';
 
-/** @type {GeolocationCoordinates} */
+/** @type {GeolocationCoordinates?} */
 let coords;
 let selectedDate = new Date().toISOString().split('T')[0]; // default to today's date
 /** @type {L.Map} */
@@ -14,7 +14,7 @@ export let data;
 let { originalStores } = data;
 let stores = [...originalStores];
 // @ts-ignore
-$: storesToShow = stores.map(store => {if(coords&&coords.latitude){store.distance = distance(coords.latitude, coords.longitude, store.coordinate_x, store.coordinate_y)};return store;}).sort((a, b) => a.distance - b.distance);
+$: storesToShow = stores.map(store => {if(coords?.latitude){store.distance = distance(coords.latitude, coords.longitude, store.coordinate_x, store.coordinate_y)};return store;}).sort((a, b) => a.distance - b.distance);
 
 onMount(() => {
     // @ts-ignore
@@ -23,7 +23,7 @@ onMount(() => {
     window.map = map = L.map('map').setView([45.8081751, 15.9841489], 12);
     // @ts-ignore
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> contributors'}).addTo(map);
-    navigator.geolocation.getCurrentPosition(async ({coords: userCoords}) => {
+    navigator.geolocation.getCurrentPosition(({coords: userCoords}) => {
         coords = userCoords;
         // @ts-ignore
         L.marker([userCoords.latitude, userCoords.longitude], {icon: L.divIcon({className:'', html: '<svg height="50" width="50" xmlns="http://www.w3.org/2000/svg"><circle r="14" cx="25" cy="25" fill="#7272da" stroke="#52529f" stroke-width="7" /></svg>'})}).addTo(map);
@@ -33,7 +33,8 @@ onMount(() => {
     changeDate();
 });
 
-/** @param {{ target: { value: string; }; }} event */
+// @ts-ignore
+/** @param {ChangeEventHandler<HTMLInputElement>} event */
 function handleDateChange(event) {
     selectedDate = event.target.value;
     changeDate();
