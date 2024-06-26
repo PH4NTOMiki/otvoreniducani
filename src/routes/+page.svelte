@@ -6,7 +6,7 @@ import dayjs from 'dayjs';
 
 /** @type {import('./$types').PageData} */
 export let data;
-let { stores } = data;
+let { originalStores, stores } = data;
 let selectedDate = new Date().toISOString().split('T')[0]; // default to today's date
 /** @type {GeolocationCoordinates} */
 let coords;
@@ -29,57 +29,27 @@ onMount(() => {
         map.panTo([userCoords.latitude, userCoords.longitude]);
         //updateStoresAndMap();
     }, console.error);
+    changeDate();
 });
 
 /** @param {{ target: { value: string; }; }} event */
-async function handleDateChange(event) {
+function handleDateChange(event) {
     selectedDate = event.target.value;
-    //updateStoresAndMap();
+    changeDate();
 }
 
-async function updateStoresAndMap() {
-    const response = await fetch(`/api/closest-store?date=${selectedDate}`, {method:'POST', body: JSON.stringify(coords)});
-    const _stores = await response.json();
-
-    // Clear existing markers and popups
-    map.eachLayer(layer => {
-        // @ts-ignore
-        if (layer instanceof L.Marker) {
-            map.removeLayer(layer);
-        }
-    });
-
-    stores = _stores.map((/** @type {{ distance: number; coordinate_x: number; coordinate_y: number; id: number; closed: boolean; }} */ store) => {
+function changeDate() {console.log('selectedDate', selectedDate);
+    stores = [...originalStores].filter(store => {
+        return store.store_days.some(storeDate => {
+            return storeDate.date === selectedDate
+        });
+    }).map(store => {
         store.distance = distance(coords.latitude, coords.longitude, store.coordinate_x, store.coordinate_y);
-
-        // Query the store_hours table to determine whether the store is open or closed on the selected date
-        const selectedDateObj = dayjs(selectedDate);
         return store;
-        //const storeHours = await db.from('store_hours').select('open_time, close_time').eq('store_id', store.id).eq('date', selectedDateObj.format('YYYY-MM-DD'));
-
-        if (storeHours.length === 0 || storeHours[0].open_time === null || storeHours[0].close_time === null) {
-            store.closed = true;
-        } else {
-            const currentTime = dayjs();
-            const openTime = dayjs(storeHours[0].open_time, 'HH:mm');
-            const closeTime = dayjs(storeHours[0].close_time, 'HH:mm');
-
-            if (currentTime.isBefore(openTime) || currentTime.isAfter(closeTime)) {
-                store.closed = true;
-            } else {
-                store.closed = false;
-            }
-        }
-
-        return store;
+    // @ts-ignore
     }).sort((a, b) => a.distance - b.distance);
-
-    // Add new markers and popups
-    stores.forEach(store => {
-        // @ts-ignore
-        L.marker([store.coordinate_x, store.coordinate_y]).addTo(map).bindPopup(`${store.title}<br>${store.address}<br>${store.town}<br>${store.closed ? 'Closed' : 'Open'}`);
-    });
 }
+
 </script>
 
 <input type="date" value={selectedDate} on:change={handleDateChange}>
