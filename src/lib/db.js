@@ -2,6 +2,7 @@ import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_KEY } from '$env/static/public';
 import { createClient } from '@supabase/supabase-js';
 import { browser } from '$app/environment';
 import { writable } from 'svelte/store';
+/** @type {Record<string, { body: string; headers: Record<string, string>; status: number; statusText: string; url: string; type: ResponseType; redirected: boolean; }>} */
 let initData = {};
 if(browser && document.getElementById('loaded-data')){// @ts-ignore
     initData = JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(document.getElementById('loaded-data').innerHTML), m => m.codePointAt(0))));
@@ -12,11 +13,9 @@ export const fetchCache = writable({});
 
 export const db = createClient(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_KEY, {global: {
     // @ts-ignore
-    fetch: async (url, init) => {
+    fetch: async (/** @type {string} */ url, init) => {
         if(browser){
-            if(init?.method !== "GET") return await fetch(url, init);
-            // @ts-ignore
-            if(initData[url]) return objectToResponse(initData[url]);
+            if(init?.method === "GET" && initData[url]) return objectToResponse(initData[url]);
             return await fetch(url, init);
         }
         if(! browser){
