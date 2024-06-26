@@ -16,10 +16,7 @@ export const db = createClient(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_KEY, {global
         if(browser){
             if(init?.method !== "GET") return await fetch(url, init);
             // @ts-ignore
-            if(initData[url]){
-                // @ts-ignore
-                return objectToResponse(initData[url]);
-            }
+            if(initData[url]) return objectToResponse(initData[url]);
             return await fetch(url, init);
         }
         if(! browser){
