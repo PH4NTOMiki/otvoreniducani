@@ -3,14 +3,9 @@ import { createClient } from '@supabase/supabase-js';
 import { browser } from '$app/environment';
 import { writable } from 'svelte/store';
 let initData = {};
-if(browser && document.getElementById('loaded-data')){
-    /** @param {string} base64 */
-    function base64ToBytes(base64) {
-        const binString = atob(base64);
-        // @ts-ignore
-        return new TextDecoder().decode(Uint8Array.from(binString, (m) => m.codePointAt(0)));
-    } // @ts-ignore
-    initData = JSON.parse(base64ToBytes(document.getElementById('loaded-data').innerHTML));
+if(browser && document.getElementById('loaded-data')){// @ts-ignore
+    initData = JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(document.getElementById('loaded-data').innerHTML), m => m.codePointAt(0))));
+    
     setTimeout(() => {initData = {}}, 10e3);
 }
 export const fetchCache = writable({});
