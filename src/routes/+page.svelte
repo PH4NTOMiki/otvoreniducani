@@ -34,14 +34,13 @@ onMount(() => {
 });
 
 // @ts-ignore
-/** @param {ChangeEventHandler<HTMLInputElement>} event */
 function handleDateChange(event) {
     selectedDate = event.target.value;
     changeDate();
 }
 
-function changeDate() {console.log('selectedDate', selectedDate);
-    stores = [...originalStores].filter(store => {
+function changeDate() {
+    stores = originalStores.filter(store => {
         return store.store_days.some(storeDate => {
             return storeDate.date === selectedDate
         });
@@ -52,7 +51,7 @@ function changeDate() {console.log('selectedDate', selectedDate);
 
 <input type="date" value={selectedDate} on:change={handleDateChange}>
 
-{#if storesToShow.length}
+
 <div class="overflow-x-auto">
     <table class="table mx-auto lg:w-4/5">
         {#each storesToShow as store}
@@ -67,4 +66,3 @@ function changeDate() {console.log('selectedDate', selectedDate);
     </table>
     <div id="map" style="height: 500px; width: 100%;"></div>
 </div>
-{/if}
