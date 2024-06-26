@@ -4,22 +4,23 @@ import { onMount } from 'svelte';
 import { distance } from '$lib/distance';
 import dayjs from 'dayjs';
 
-/** @type {import('./$types').PageData} */
-export let data;
-let { originalStores, stores } = data;
-let selectedDate = new Date().toISOString().split('T')[0]; // default to today's date
 /** @type {GeolocationCoordinates} */
 let coords;
+let selectedDate = new Date().toISOString().split('T')[0]; // default to today's date
 /** @type {L.Map} */
 let map;
+/** @type {import('./$types').PageData} */
+export let data;
+let { originalStores } = data;
+let stores = [...originalStores];
+// @ts-ignore
+$: storesToShow = stores.map(store => {if(coords&&coords.latitude){store.distance = distance(coords.latitude, coords.longitude, store.coordinate_x, store.coordinate_y)};return store;}).sort((a, b) => a.distance - b.distance);
 
 onMount(() => {
     // @ts-ignore
     window.db = db;
     // @ts-ignore
-    map = L.map('map').setView([45.8081751, 15.9841489], 12);
-    // @ts-ignore
-    window.map = map;
+    window.map = map = L.map('map').setView([45.8081751, 15.9841489], 12);
     // @ts-ignore
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> contributors'}).addTo(map);
     navigator.geolocation.getCurrentPosition(async ({coords: userCoords}) => {
@@ -43,21 +44,17 @@ function changeDate() {console.log('selectedDate', selectedDate);
         return store.store_days.some(storeDate => {
             return storeDate.date === selectedDate
         });
-    }).map(store => {
-        store.distance = distance(coords.latitude, coords.longitude, store.coordinate_x, store.coordinate_y);
-        return store;
-    // @ts-ignore
-    }).sort((a, b) => a.distance - b.distance);
+    });
 }
 
 </script>
 
 <input type="date" value={selectedDate} on:change={handleDateChange}>
 
-{#if stores.length}
+{#if storesToShow.length}
 <div class="overflow-x-auto">
     <table class="table mx-auto lg:w-4/5">
-        {#each stores as store}
+        {#each storesToShow as store}
             <tr>
                 <td>{store.id}</td>
                 <td>{store.title}</td>
