@@ -40,10 +40,13 @@ function handleDateChange(event) {
 }
 
 function changeDate() {
+    const dayOfWeek = (new Date(selectedDate).getDay() + 6) % 7;
     stores = originalStores.filter(store => {
-        return store.store_days.some(storeDate => {
+        const a = store.store_days.some(storeDate => {
             return storeDate.date === selectedDate
-        });
+        }) || store.default_start[dayOfWeek - 1];
+        console.log(a);
+        return a;
     });
 }
 
