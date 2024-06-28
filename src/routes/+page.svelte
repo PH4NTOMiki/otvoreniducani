@@ -73,7 +73,7 @@ function changeDate() {
     mapLayerGroup.clearLayers();
     stores.forEach(store => {
         // @ts-ignore
-        L.marker([store.coordinate_x, store.coordinate_y]).addTo(mapLayerGroup).bindPopup(`${store.title}<br>${store.address}<br>${store.town}`);
+        L.marker([store.coordinate_x, store.coordinate_y]).addTo(mapLayerGroup).bindPopup(`${store.title}<br>${store.address}<br>${store.town}<br>Radno vrijeme: <br>${store.current_start} - ${store.current_end}`);
     });
 }
 
