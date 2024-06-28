@@ -53,7 +53,7 @@ function changeDate() {
 
 </script>
 
-<input type="date" value={selectedDate} on:change={handleDateChange}>
+<input type="date" value={new Date().toISOString().split('T')[0]} on:change={handleDateChange}>
 
 
 <div class="overflow-x-auto">
