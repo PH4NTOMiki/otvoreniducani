@@ -44,7 +44,6 @@ function handleDateChange(event) {
 }
 
 function changeDate() {
-    mapLayerGroup.clearLayers();
     const dayOfWeek = (new Date(selectedDate).getDay() + 6) % 7;
     console.log(dayOfWeek);
     stores = originalStores.filter(store => {
@@ -53,11 +52,29 @@ function changeDate() {
         }) || store.default_start[dayOfWeek];
         console.log(storeOpen);
         return storeOpen;
+    }).map(store => {
+        const storeDay = store.store_days.find(storeDate => {
+            return storeDate.date === selectedDate
+        });
+        if(storeDay){
+            // @ts-ignore
+            store.current_start = storeDay.start;
+            // @ts-ignore
+            store.current_end = storeDay.end;
+        } else {
+            // @ts-ignore
+            store.current_start = store.default_start[dayOfWeek];
+            // @ts-ignore
+            store.current_end = store.default_end[dayOfWeek];
+        }
+        return store;
     });
+    
+    mapLayerGroup.clearLayers();
     stores.forEach(store => {
         // @ts-ignore
         L.marker([store.coordinate_x, store.coordinate_y]).addTo(mapLayerGroup).bindPopup(`${store.title}<br>${store.address}<br>${store.town}`);
-    });;
+    });
 }
 
 </script>
@@ -75,7 +92,7 @@ function changeDate() {
             <th>Naziv</th>
             <th>Adresa</th>
             <th>Razdaljina</th>
-            <th>Status</th>
+            <th>Radno vrijeme</th>
         </tr>
         {#each storesToShow as store}
             <tr>
@@ -83,7 +100,7 @@ function changeDate() {
                 <td>{store.title}</td>
                 <td>{store.address}</td>
                 <td>{store.distance ? (store.distance.toFixed(2) + ' km') : ''}</td>
-                <td>{store.closed ? 'Zatvoreno' : 'Otvoreno'}</td>
+                <td>{store.current_start} - {store.current_end}</td>
             </tr>
     {/each}
     </table>
