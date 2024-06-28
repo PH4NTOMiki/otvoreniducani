@@ -2,13 +2,15 @@
 import {db} from '$lib/db';
 import { onMount } from 'svelte';
 import { distance } from '$lib/distance';
-import dayjs from 'dayjs';
+
 
 /** @type {GeolocationCoordinates?} */
 let coords;
 let selectedDate = new Date().toISOString().split('T')[0]; // default to today's date
 /** @type {L.Map} */
 let map;
+/** @type {L.LayerGroup} */
+let mapLayerGroup;
 /** @type {import('./$types').PageData} */
 export let data;
 let { originalStores } = data;
@@ -23,13 +25,15 @@ onMount(() => {
     window.map = map = L.map('map').setView([45.8081751, 15.9841489], 12);
     // @ts-ignore
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> contributors'}).addTo(map);
-    navigator.geolocation.getCurrentPosition(({coords: userCoords}) => {
-        coords = userCoords;
+    // @ts-ignore
+    mapLayerGroup = L.layerGroup().addTo(map);
+    navigator.geolocation.getCurrentPosition((_c) => {
+        coords = _c.coords;
         // @ts-ignore
-        L.marker([userCoords.latitude, userCoords.longitude], {icon: L.divIcon({className:'', html: '<svg height="50" width="50" xmlns="http://www.w3.org/2000/svg"><circle r="14" cx="25" cy="25" fill="#7272da" stroke="#52529f" stroke-width="7" /></svg>'})}).addTo(map);
-        map.panTo([userCoords.latitude, userCoords.longitude]);
+        L.marker([coords.latitude, coords.longitude], {icon: L.divIcon({className:'', html: '<svg height="50" width="50" xmlns="http://www.w3.org/2000/svg"><circle r="14" cx="25" cy="25" fill="#7272da" stroke="#52529f" stroke-width="7" /></svg>'})}).addTo(map);
+        map.panTo([coords.latitude, coords.longitude]);
         //updateStoresAndMap();
-    }, console.error);
+    }, console.error, {enableHighAccuracy: true});
     changeDate();
 });
 
@@ -40,6 +44,7 @@ function handleDateChange(event) {
 }
 
 function changeDate() {
+    mapLayerGroup.clearLayers();
     const dayOfWeek = (new Date(selectedDate).getDay() + 6) % 7;
     console.log(dayOfWeek);
     stores = originalStores.filter(store => {
@@ -49,12 +54,18 @@ function changeDate() {
         console.log(storeOpen);
         return storeOpen;
     });
+    stores.forEach(store => {
+        // @ts-ignore
+        L.marker([store.coordinate_x, store.coordinate_y]).addTo(mapLayerGroup).bindPopup(`${store.title}<br>${store.address}<br>${store.town}`);
+    });;
 }
 
 </script>
 
-<input type="date" value={new Date().toISOString().split('T')[0]} on:change={handleDateChange}>
-
+<label class="input input-bordered input-error flex items-center gap-2 w-[208px]">
+    Datum
+    <input type="date" class="grow" value={new Date().toISOString().split('T')[0]} on:change={handleDateChange}>
+</label>
 
 <div class="overflow-x-auto">
     <div id="map" style="height: 500px; width: 100%;"></div>
