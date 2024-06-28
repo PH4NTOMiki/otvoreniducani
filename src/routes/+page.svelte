@@ -57,6 +57,7 @@ function changeDate() {
 
 
 <div class="overflow-x-auto">
+    <div id="map" style="height: 500px; width: 100%;"></div>
     <table class="table mx-auto lg:w-4/5">
         {#each storesToShow as store}
             <tr>
@@ -68,5 +69,4 @@ function changeDate() {
             </tr>
     {/each}
     </table>
-    <div id="map" style="height: 500px; width: 100%;"></div>
 </div>
