@@ -43,11 +43,11 @@ function changeDate() {
     const dayOfWeek = (new Date(selectedDate).getDay() + 6) % 7;
     console.log(dayOfWeek);
     stores = originalStores.filter(store => {
-        const a = store.store_days.some(storeDate => {
+        const storeOpen = store.store_days.some(storeDate => {
             return storeDate.date === selectedDate
         }) || store.default_start[dayOfWeek];
-        console.log(a);
-        return a;
+        console.log(storeOpen);
+        return storeOpen;
     });
 }
 
@@ -59,13 +59,20 @@ function changeDate() {
 <div class="overflow-x-auto">
     <div id="map" style="height: 500px; width: 100%;"></div>
     <table class="table mx-auto lg:w-4/5">
+        <tr>
+            <th></th>
+            <th>Naziv</th>
+            <th>Adresa</th>
+            <th>Razdaljina</th>
+            <th>Status</th>
+        </tr>
         {#each storesToShow as store}
             <tr>
                 <td>{store.id}</td>
                 <td>{store.title}</td>
                 <td>{store.address}</td>
                 <td>{store.distance ? (store.distance.toFixed(2) + ' km') : ''}</td>
-                <td>{store.closed ? 'Closed' : 'Open'}</td>
+                <td>{store.closed ? 'Zatvoreno' : 'Otvoreno'}</td>
             </tr>
     {/each}
     </table>
