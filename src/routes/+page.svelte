@@ -41,10 +41,11 @@ function handleDateChange(event) {
 
 function changeDate() {
     const dayOfWeek = (new Date(selectedDate).getDay() + 6) % 7;
+    console.log(dayOfWeek);
     stores = originalStores.filter(store => {
         const a = store.store_days.some(storeDate => {
             return storeDate.date === selectedDate
-        }) || store.default_start[dayOfWeek - 1];
+        }) || store.default_start[dayOfWeek];
         console.log(a);
         return a;
     });
