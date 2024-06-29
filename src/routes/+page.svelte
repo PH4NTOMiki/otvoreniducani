@@ -73,7 +73,7 @@ function changeDate() {
     mapLayerGroup.clearLayers();
     stores.forEach(store => {
         // @ts-ignore
-        L.marker([store.coordinate_x, store.coordinate_y]).addTo(mapLayerGroup).bindPopup(`${store.title}<br>${store.address}<br>${store.town}<br>Radno vrijeme: <br>${store.current_start} - ${store.current_end}`);
+        L.marker([store.coordinate_x, store.coordinate_y]).addTo(mapLayerGroup).bindPopup(`${store.title}<br>${store.address}<br>${store.town}<br>Radno vrijeme: <br>${store.current_start?.slice(0, -3)} - ${store.current_end?.slice(0, -3)}`);
     });
 }
 
@@ -100,7 +100,7 @@ function changeDate() {
                 <td>{store.title}</td>
                 <td>{store.address}</td>
                 <td>{store.distance ? (store.distance.toFixed(2) + ' km') : ''}</td>
-                <td>{store.current_start} - {store.current_end}</td>
+                <td>{store.current_start?.slice(0, -3)} - {store.current_end?.slice(0, -3)}</td>
             </tr>
     {/each}
     </table>
