@@ -22,7 +22,7 @@
         {#each data.stores as store}
             <tr>
                 <td class="hidden">{store.id}</td>
-                <td>{store.title}</td>
+                <td><a class="text-red-500" href={`/upravljanje/${store.id}`}>{store.title}</a></td>
                 <td>{store.address}</td>
             </tr>
     {/each}
