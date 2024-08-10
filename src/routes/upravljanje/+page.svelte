@@ -7,5 +7,5 @@
     }
 </script>
 
-<h1>Dobrodošli, {data.user.username}!</h1>
-<button on:click={handleLogout}>Odjavite se</button>
+<h1 class="font-bold">Dobrodošli, {data.user.username}!</h1>
+<button class="btn btn-primary" on:click={handleLogout}>Odjavite se</button>
