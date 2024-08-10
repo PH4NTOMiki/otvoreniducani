@@ -88,7 +88,7 @@ function changeDate() {
     <div id="map" style="height: 500px; width: 100%;"></div>
     <table class="table mx-auto lg:w-4/5">
         <tr>
-            <!--<th></th>-->
+            <th class="hidden"></th>
             <th>Najbliži <i>otvoreni</i> dućani</th>
             <th>Adresa</th>
             <th>Razdaljina</th>
@@ -96,7 +96,7 @@ function changeDate() {
         </tr>
         {#each storesToShow as store}
             <tr>
-                <!--<td>{store.id}</td>-->
+                <td class="hidden">{store.id}</td>
                 <td>{store.title}</td>
                 <td>{store.address}</td>
                 <td>{store.distance ? (store.distance.toFixed(2) + ' km') : ''}</td>
