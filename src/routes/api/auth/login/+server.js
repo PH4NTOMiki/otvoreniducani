@@ -6,7 +6,7 @@ export async function POST({ request, cookies }) {
     
     // Here you would typically check the username and password against your database
     if (username === 'user' && password === 'password') {
-        const token = jwt.sign({ username }, SECRET_KEY, { expiresIn: '1h' });
+        const token = jwt.sign({ username, stores_owned: [1,2,3] }, SECRET_KEY, { expiresIn: '1h' });
         
         // Set the token in a secure, HttpOnly cookie
         cookies.set('token', token, {

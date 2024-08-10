@@ -1,10 +1,12 @@
-import { redirect } from '@sveltejs/kit';
+import { db } from '$lib/db-server';
+import { error } from '@sveltejs/kit';
 
-export function load({ locals }) {
-    if (!locals.user) {
-        redirect(302, '/login');
-    }
-    return {
-        user: locals.user
-    };
+/** @type {import('./$types').PageServerLoad} */
+export async function load({ locals }) {
+	const { data: stores } = await db.from('stores').select('*, store_days (*)').in('id', locals.user.stores_owned);
+    if (stores) {
+		return {stores};
+	}
+
+	error(404, 'Not found');
 }
