@@ -18,14 +18,12 @@
             <th class="hidden"></th>
             <th>Najbliži <i>otvoreni</i> dućani</th>
             <th>Adresa</th>
-            <th>Radno vrijeme</th>
         </tr>
         {#each data.stores as store}
             <tr>
                 <td class="hidden">{store.id}</td>
                 <td>{store.title}</td>
                 <td>{store.address}</td>
-                <td>{store.current_start?.slice(0, -3)} - {store.current_end?.slice(0, -3)}</td>
             </tr>
     {/each}
     </table>
