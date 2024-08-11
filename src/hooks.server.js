@@ -7,10 +7,11 @@ export async function handle({ event, resolve }) {
     if (token) {
         try {
             const decoded = jwt.verify(token, SECRET_KEY);
+            // @ts-ignore
             event.locals.user = decoded;
         } catch (err) {
             // Token is invalid, clear it
-            event.cookies.delete('token', { path: '/' });
+            //event.cookies.delete('token', { path: '/' });
         }
     }
     

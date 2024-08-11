@@ -1,10 +1,11 @@
 <script>
     import { goto } from '$app/navigation';
+	import { logout } from '$lib/auth.js';
     
     export let data;
 
     async function handleLogout() {
-        await fetch('/api/auth/logout', { method: 'POST' });
+        await logout();
         goto('/upravljanje/prijava');
     }
 </script>

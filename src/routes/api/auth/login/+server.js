@@ -1,30 +1,38 @@
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
 import { SECRET_KEY } from '$env/static/private';
+import { findUserByUsername } from '$lib/user-server';
 
 export async function POST({ request, cookies }) {
     const { username, password } = await request.json();
-    
-    // Here you would typically check the username and password against your database
-    if (username === 'user' && password === 'password') {
-        const token = jwt.sign({ username, stores_owned: [1,2,3] }, SECRET_KEY, { expiresIn: '1h' });
-        
-        // Set the token in a secure, HttpOnly cookie
-        cookies.set('token', token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
-            maxAge: 60 * 60, // 1 hour
-            path: '/'
-        });
 
-        return new Response(JSON.stringify({ success: true }), {
-            headers: { 'Content-Type': 'application/json' },
-            status: 200
-        });
-    }
+    const user = await findUserByUsername(username);
+    if(!user)return new Response(JSON.stringify({ error: 'No user' }), {headers: { 'Content-Type': 'application/json' }, status: 401});
+    if(!(await bcrypt.compare(password, user.password)))return new Response(JSON.stringify({ error: 'Wrong password' }), {headers: { 'Content-Type': 'application/json' }, status: 401});
+    delete user.password;
     
-    return new Response(JSON.stringify({ error: 'Invalid credentials' }), {
+    
+    const token = jwt.sign(user, SECRET_KEY, { expiresIn: '15m' });
+    const refreshToken = jwt.sign(user, SECRET_KEY, { expiresIn: '7d' });
+    
+    cookies.set('token', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 15 * 60, // 15 minutes
+        path: '/'
+    });
+
+    cookies.set('refreshToken', refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 7 * 24 * 60 * 60, // 7 days
+        path: '/'
+    });
+
+    return new Response(JSON.stringify({token, refreshToken, user }), {
         headers: { 'Content-Type': 'application/json' },
-        status: 401
+        status: 200
     });
 }

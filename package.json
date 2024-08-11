@@ -19,6 +19,7 @@
 		"@types/eslint": "^8.56.7",
 		"@types/leaflet": "^1.9.12",
 		"autoprefixer": "^10.4.19",
+		"bcryptjs": "^2.4.3",
 		"daisyui": "^4.12.2",
 		"dayjs": "^1.11.11",
 		"eslint": "^9.0.0",
