@@ -30,7 +30,7 @@
 			<tr>
 				<th class="hidden"></th>
 				<th>Datum</th>
-				<th>Razdaljina</th>
+				<th>Radno vrijeme</th>
 			</tr>
 			{#each data.store.store_days as storeDay}
 				<tr>
