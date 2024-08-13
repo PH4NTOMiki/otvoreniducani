@@ -1,11 +1,19 @@
 import { writable } from 'svelte/store';
+/** @type {App.Locals["user"]?} */
+let _user = null;
 
+/** @type {import('svelte/store').Writable<App.Locals["user"]?>} */
 export const user = writable(null);
+user.subscribe((value) => {_user = value;console.log('user changed', value)});
 /** @type {NodeJS.Timeout?} */
 let refreshTimeout;
 
+export function initAuth() {
+    scheduleTokenRefresh();
+}
+
 export async function refreshToken() {
-    if (!localStorage.getItem('refreshToken')) return false;
+    if (!_user) return false;
     const response = await fetch('/api/auth/refresh', {
         method: 'POST',
         credentials: 'include',
@@ -14,13 +22,9 @@ export async function refreshToken() {
     if (response.ok) {
         const userData = await response.json();
         user.set(userData.user);
-        localStorage.setItem('token', userData.token);
-        localStorage.setItem('refreshToken', userData.refreshToken);
         scheduleTokenRefresh();
         return true;
     } else {
-        localStorage.removeItem('token');
-        localStorage.removeItem('refreshToken');
         user.set(null);
         return false;
     }
@@ -32,22 +36,15 @@ function scheduleTokenRefresh() {
         clearTimeout(refreshTimeout);
     }
 
-    const token = localStorage.getItem('token');
-    if (token) {
-        try {
-            const decodedToken = parseJwt(token);
-            // @ts-ignore
-            const expiresIn = decodedToken.exp * 1000 - Date.now();
-            const refreshTime = expiresIn - 60000; // Refresh 1 minute before expiry
+    if (_user) {
+        // @ts-ignore
+        const expiresIn = _user.exp * 1000 - Date.now();
+        const refreshTime = expiresIn - 60000; // Refresh 1 minute before expiry
 
-            if (refreshTime > 0) {
-                refreshTimeout = setTimeout(refreshToken, refreshTime);
-            } else {
-                refreshToken(); // Token is already expired or about to expire, refresh immediately
-            }
-        } catch (error) {
-            console.error('Error decoding token:', error);
-            logout();
+        if (refreshTime > 0) {
+            refreshTimeout = setTimeout(refreshToken, refreshTime);
+        } else {
+            refreshToken(); // Token is already expired or about to expire, refresh immediately
         }
     }
 }
@@ -66,8 +63,6 @@ export async function login(username, password) {
 
     if (response.ok) {
         const userData = await response.json();
-        localStorage.setItem('token', userData.token);
-        localStorage.setItem('refreshToken', userData.refreshToken);
         user.set(userData.user);
         scheduleTokenRefresh();
         return true;
@@ -81,8 +76,6 @@ export async function logout() {
         method: 'POST',
         credentials: 'include',
     });
-    localStorage.removeItem('token');
-    localStorage.removeItem('refreshToken');
     user.set(null);
     if (refreshTimeout) {
         clearTimeout(refreshTimeout);
@@ -110,8 +103,4 @@ function getCookie(name) {
     const parts = value.split(`; ${name}=`);
     // @ts-ignore
     if (parts.length === 2) return parts.pop().split(';').shift();
-}
-
-export function initAuth() {
-    scheduleTokenRefresh();
 }

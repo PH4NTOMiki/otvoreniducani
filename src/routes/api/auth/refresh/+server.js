@@ -13,6 +13,7 @@ export async function POST({ cookies }) {
 
     try {
         const decoded = jwt.verify(refreshToken, SECRET_KEY);
+        // @ts-ignore
         const user = await findUserByUsername(decoded.username);
         delete user.password;
         const newToken = jwt.sign(user, SECRET_KEY, { expiresIn: '15m' });
@@ -25,7 +26,7 @@ export async function POST({ cookies }) {
             path: '/'
         });
 
-        return new Response(JSON.stringify({ user, token: newToken, refreshToken }), {
+        return new Response(JSON.stringify({ user: JSON.parse(Buffer.from(newToken.split('.')[1], 'base64').toString()) }), {
             headers: { 'Content-Type': 'application/json' },
             status: 200
         });

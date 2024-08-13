@@ -31,7 +31,7 @@ export async function POST({ request, cookies }) {
         path: '/'
     });
 
-    return new Response(JSON.stringify({token, refreshToken, user }), {
+    return new Response(JSON.stringify({user: JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString())}), {
         headers: { 'Content-Type': 'application/json' },
         status: 200
     });

@@ -11,6 +11,8 @@ declare global {
 				password: string?;
 				created_at: string;
 				stores_owned: number[];
+				exp: number?;
+				iat: number?;
 			}
 		}
 		// interface PageData {}
