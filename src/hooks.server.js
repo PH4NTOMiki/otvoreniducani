@@ -1,7 +1,9 @@
 import jwt from 'jsonwebtoken';
 import { SECRET_KEY } from '$env/static/private';
+import { fetchCache } from '$lib/db';
 
 export async function handle({ event, resolve }) {
+    fetchCache._ = {};
     const token = event.cookies.get('token');
     
     if (token) {
