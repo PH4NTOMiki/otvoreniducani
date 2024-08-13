@@ -1,19 +1,12 @@
 <script>
+    import { login } from '$lib/auth';
     import { goto } from '$app/navigation';
 
     let username = '';
     let password = '';
 
     async function handleSubmit() {
-        const response = await fetch('/api/auth/login', {
-            method: 'POST',
-            body: JSON.stringify({ username, password }),
-            headers: { 'Content-Type': 'application/json' }
-        });
-
-        if (response.ok) {
-            const { token } = await response.json();
-            localStorage.setItem('token', token);
+        if (await login(username, password)) {
             goto('/upravljanje');
         } else {
             alert('Login failed');
