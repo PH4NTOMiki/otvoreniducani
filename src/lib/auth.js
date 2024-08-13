@@ -5,6 +5,7 @@ export const user = writable(null);
 let refreshTimeout;
 
 export async function refreshToken() {
+    if (!localStorage.getItem('token')) return false;
     const response = await fetch('/api/auth/refresh', {
         method: 'POST',
         credentials: 'include',
