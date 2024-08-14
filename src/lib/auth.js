@@ -16,7 +16,6 @@ export async function refreshToken() {
     if (!_user) return false;
     const response = await fetch('/api/auth/refresh', {
         method: 'POST',
-        credentials: 'include',
     });
 
     if (response.ok) {
@@ -58,7 +57,6 @@ export async function login(username, password) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password }),
-        credentials: 'include',
     });
 
     if (response.ok) {
@@ -74,7 +72,6 @@ export async function login(username, password) {
 export async function logout() {
     await fetch('/api/auth/logout', {
         method: 'POST',
-        credentials: 'include',
     });
     user.set(null);
     if (refreshTimeout) {
