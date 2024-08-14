@@ -1,11 +1,11 @@
 import jwt from 'jsonwebtoken';
 import { SECRET_KEY } from '$env/static/private';
-import { fetchCache } from '$lib/db';
+import { clearFetchCache } from '$lib/db';
 import { findUserByUsername } from '$lib/user-server';
 
 /** @type {import('@sveltejs/kit').Handle} */
 export async function handle({ event, resolve }) {
-    fetchCache._ = {};
+    clearFetchCache();
     const token = event.cookies.get('token');
     const refreshToken = event.cookies.get('refreshToken');
     

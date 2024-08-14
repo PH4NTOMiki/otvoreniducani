@@ -7,8 +7,8 @@
   <!-- svelte-ignore missing-declaration -->
   <svelte:head>
     <title>Otvoreni Dućani</title>  
-    {#if fetchCache?._}
-      <template id="loaded-data" style="display:none">{browser?'':Buffer.from(JSON.stringify(fetchCache._)).toString('base64')}</template>
+    {#if fetchCache}
+      <template id="loaded-data" style="display:none">{browser?'':Buffer.from(JSON.stringify(fetchCache)).toString('base64')}</template>
     {/if}
   </svelte:head>
   <div class="navbar bg-[#5b3de1] text-[black]">

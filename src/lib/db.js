@@ -9,7 +9,8 @@ if(browser && document.getElementById('loaded-data')){// @ts-ignore
     
     setTimeout(() => {initData = {}}, 10e3);
 }
-export const fetchCache = {_:{}};
+export let fetchCache = {};
+export function clearFetchCache() {fetchCache = {}}
 
 export const db = createClient(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_KEY, {global: {
     // @ts-ignore
@@ -23,7 +24,7 @@ export const db = createClient(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_KEY, {global
             if(init?.method !== "GET") return res;
             const respObj = await responseToObject(res);
             // @ts-ignore
-            fetchCache._[url] = respObj;
+            fetchCache[url] = respObj;
             return res;
         }
     }
