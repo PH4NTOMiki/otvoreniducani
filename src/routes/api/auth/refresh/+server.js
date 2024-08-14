@@ -15,7 +15,6 @@ export async function POST({ cookies }) {
         const decoded = jwt.verify(refreshToken, SECRET_KEY);
         // @ts-ignore
         const user = await findUserByUsername(decoded.username);
-        delete user.password;
         const newToken = jwt.sign(user, SECRET_KEY, { expiresIn: '15m' });
 
         cookies.set('token', newToken, {

@@ -1,14 +1,16 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import { SECRET_KEY } from '$env/static/private';
-import { findUserByUsername } from '$lib/user-server';
+import { findUserByUsernameWithPassword } from '$lib/user-server';
 
 export async function POST({ request, cookies }) {
     const { username, password } = await request.json();
 
-    const user = await findUserByUsername(username);
+    const user = await findUserByUsernameWithPassword(username);
     if(!user)return new Response(JSON.stringify({ error: 'No user' }), {headers: { 'Content-Type': 'application/json' }, status: 401});
+    // @ts-ignore
     if(!(await bcrypt.compare(password, user.password)))return new Response(JSON.stringify({ error: 'Wrong password' }), {headers: { 'Content-Type': 'application/json' }, status: 401});
+    // @ts-ignore
     delete user.password;
     
     

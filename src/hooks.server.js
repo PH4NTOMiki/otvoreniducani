@@ -23,8 +23,6 @@ export async function handle({ event, resolve }) {
             const decoded = jwt.verify(refreshToken, SECRET_KEY);
             // @ts-ignore
             const user = await findUserByUsername(decoded.username);
-            // @ts-ignore
-            delete user.password;
             const newToken = jwt.sign(user, SECRET_KEY, { expiresIn: '15m' });
             event.locals.user = JSON.parse(Buffer.from(newToken.split('.')[1], 'base64').toString());
     
