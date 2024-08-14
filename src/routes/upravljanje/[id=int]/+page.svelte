@@ -1,4 +1,9 @@
 <script>
+// @ts-nocheck
+
+	const inputClass = 'input input-bordered';
+	const dayNames = ['Ponedjeljak', 'Utorak', 'Srijeda', 'Četvrtak', 'Petak', 'Subota', 'Nedjelja'];
+	
 	export let data;
 </script>
 
@@ -9,21 +14,22 @@
 <div class="lg:w-4/5 mx-auto">
 	<h2 class="text-3xl font-extrabold text-gray-900 md:text-4xl lg:text-5xl">{data.store.title}</h2>
 	<h3 class="mt-4 text-lg text-gray-600 md:text-xl lg:text-2xl">{data.store.address}, {data.store.town}</h3>
-	<div>
-		Ponedjeljak: {data.store.default_start[0]?.slice(0, -3)} - {data.store.default_end[0]?.slice(0, -3)}
-		<br>
-		Utorak: {data.store.default_start[1]?.slice(0, -3)} - {data.store.default_end[1]?.slice(0, -3)}
-		<br>
-		Srijeda: {data.store.default_start[2]?.slice(0, -3)} - {data.store.default_end[2]?.slice(0, -3)}
-		<br>
-		Četvrtak: {data.store.default_start[3]?.slice(0, -3)} - {data.store.default_end[3]?.slice(0, -3)}
-		<br>
-		Petak: {data.store.default_start[4]?.slice(0, -3)} - {data.store.default_end[4]?.slice(0, -3)}
-		<br>
-		Subota: {data.store.default_start[5]?.slice(0, -3)} - {data.store.default_end[5]?.slice(0, -3)}
-		<br>
-		Nedjelja: {data.store.default_start[6]?.slice(0, -3)} - {data.store.default_end[6]?.slice(0, -3)}
-	</div>
+	<table>
+		{#each dayNames as dayName, i}
+			<tr>
+				<td>{dayName}: &nbsp;&nbsp;</td>
+				<td>
+					{#if data.store.default_start[i]}
+						<input on:change={ev=>{data.store.default_start[i] = `${ev.target.value}:00`;console.log(data);}} type="time" class={inputClass} value={data.store.default_start[i]?.slice(0, -3)}>
+						 - 
+						<input on:change={ev=>{data.store.default_end[i] = `${ev.target.value}:00`;console.log(data);}} type="time" class={inputClass} value={data.store.default_end[i]?.slice(0, -3)}>
+					{:else}
+						Zatvoreno
+					{/if}
+				</td>
+			</tr>
+		{/each}
+	</table>
 
 	<div class="overflow-x-auto">
 		<table class="table">
