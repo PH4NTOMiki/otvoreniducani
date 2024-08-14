@@ -1,17 +1,7 @@
 <script>
-    import { goto } from '$app/navigation';
-	import { logout } from '$lib/auth.js';
-    
     export let data;
-
-    async function handleLogout() {
-        await logout();
-        goto('/upravljanje/prijava');
-    }
 </script>
 
-<h1 class="font-bold">Dobrodošli, {data.user.username}!</h1>
-<button class="btn btn-primary" on:click={handleLogout}>Odjavite se</button>
 
 <div class="overflow-x-auto">
     <table class="table mx-auto lg:w-4/5">
