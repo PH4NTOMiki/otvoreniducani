@@ -1,6 +1,7 @@
 <script>
 	// @ts-nocheck
 	import { onMount } from 'svelte';
+	import { writable } from 'svelte/store';
 	
 	const inputClass = 'input input-bordered w-32 text-center';
 	const dayNames = ['Ponedjeljak', 'Utorak', 'Srijeda', 'Četvrtak', 'Petak', 'Subota', 'Nedjelja'];
@@ -9,6 +10,9 @@
 	
 	let activeTab = 'default';
 	let weekdaysGrouped = false;
+	let specialDays = writable(data.store.store_days);
+	let newSpecialDay = { date: '', start: '', end: '' };
+	let editingSpecialDay = null;
 	
 	onMount(() => {
 	  console.log(data);
@@ -41,11 +45,9 @@
 		  return;
 		}
 	
-		// Find the most common start and end times for weekdays (Monday to Friday)
 		const mostCommonStart = findMostCommon(weekdays);
 		const mostCommonEnd = findMostCommon(data.store.default_end.slice(0, 5).filter(time => time !== null));
 	
-		// Set the most common hours for weekdays only
 		for (let i = 0; i < 5; i++) {
 		  data.store.default_start[i] = mostCommonStart;
 		  data.store.default_end[i] = mostCommonEnd;
@@ -59,6 +61,38 @@
 	  return arr.sort((a,b) =>
 		arr.filter(v => v === a).length - arr.filter(v => v === b).length
 	  ).pop();
+	}
+	
+	function addSpecialDay() {
+	  if (!newSpecialDay.date || !newSpecialDay.start || !newSpecialDay.end) {
+		alert('Please fill in all fields for the new special day.');
+		return;
+	  }
+	  specialDays.update(days => [...days, { ...newSpecialDay, start: `${newSpecialDay.start}:00`, end: `${newSpecialDay.end}:00` }]);
+	  newSpecialDay = { date: '', start: '', end: '' };
+	}
+	
+	function deleteSpecialDay(index) {
+	  specialDays.update(days => days.filter((_, i) => i !== index));
+	}
+	
+	function startEditSpecialDay(day) {
+	  editingSpecialDay = { ...day, start: day.start.slice(0, -3), end: day.end.slice(0, -3) };
+	}
+	
+	function saveEditSpecialDay() {
+	  if (!editingSpecialDay.date || !editingSpecialDay.start || !editingSpecialDay.end) {
+		alert('Please fill in all fields for the special day.');
+		return;
+	  }
+	  specialDays.update(days => 
+		days.map(day => 
+		  day.date === editingSpecialDay.date 
+			? { ...editingSpecialDay, start: `${editingSpecialDay.start}:00`, end: `${editingSpecialDay.end}:00` } 
+			: day
+		)
+	  );
+	  editingSpecialDay = null;
 	}
 	
 	$: weekdayStart = data.store.default_start[0]?.slice(0, -3) || '';
@@ -222,15 +256,38 @@
 		</table>
 	  {:else}
 		<div class="overflow-x-auto">
+		  <div class="mt-4">
+		  <h3 class="text-lg font-semibold mb-2">Dodaj novi posebni dan</h3>
+		  <div class="flex gap-4">
+			<input type="date" bind:value={newSpecialDay.date} class={inputClass}>
+			<input type="time" bind:value={newSpecialDay.start} class={inputClass}>
+			<input type="time" bind:value={newSpecialDay.end} class={inputClass}>
+			<button class="btn btn-primary" on:click={addSpecialDay}>Dodaj</button>
+		  </div>
+		</div>
+		
+		{#if editingSpecialDay}
+		  <div class="mt-4">
+			<h3 class="text-lg font-semibold mb-2">Uredi posebni dan</h3>
+			<div class="flex gap-4">
+			  <input type="date" bind:value={editingSpecialDay.date} class={inputClass}>
+			  <input type="time" bind:value={editingSpecialDay.start} class={inputClass}>
+			  <input type="time" bind:value={editingSpecialDay.end} class={inputClass}>
+			  <button class="btn btn-primary" on:click={saveEditSpecialDay}>Spremi</button>
+			  <button class="btn btn-ghost" on:click={() => editingSpecialDay = null}>Odustani</button>
+			</div>
+		  </div>
+		{/if}
 		  <table class="table w-full">
 			<thead>
 			  <tr>
 				<th>Datum</th>
 				<th>Radno vrijeme</th>
+				<th>Akcije</th>
 			  </tr>
 			</thead>
 			<tbody>
-			  {#each data.store.store_days as storeDay}
+			  {#each $specialDays as storeDay, index}
 				<tr>
 				  <td>{new Date(storeDay.date).toLocaleDateString('hr-HR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</td>
 				  <td>
@@ -239,6 +296,10 @@
 					{:else}
 					  <span class="text-error">Zatvoreno</span>
 					{/if}
+				  </td>
+				  <td>
+					<button class="btn btn-sm btn-primary mr-2" on:click={() => startEditSpecialDay(storeDay)}>Uredi</button>
+					<button class="btn btn-sm btn-error" on:click={() => deleteSpecialDay(index)}>Obriši</button>
 				  </td>
 				</tr>
 			  {/each}
