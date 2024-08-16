@@ -6,7 +6,6 @@ import { user } from '$lib/auth';
 
 /** @type {import('@sveltejs/kit').Handle} */
 export async function handle({ event, resolve }) {
-    user.set(null);
     clearFetchCache();
     const token = event.cookies.get('token');
     const refreshToken = event.cookies.get('refreshToken');
@@ -16,7 +15,6 @@ export async function handle({ event, resolve }) {
             const decoded = jwt.verify(token, SECRET_KEY);
             // @ts-ignore
             event.locals.user = decoded;
-            user.set(event.locals.user);
         } catch (err) {
             // Token is invalid, clear it
             //event.cookies.delete('token', { path: '/' });
@@ -28,7 +26,6 @@ export async function handle({ event, resolve }) {
             const tempUser = await findUserByUsername(decoded.username);
             const newToken = jwt.sign(tempUser, SECRET_KEY, { expiresIn: '15m' });
             event.locals.user = JSON.parse(Buffer.from(newToken.split('.')[1], 'base64').toString());
-            user.set(event.locals.user);
     
             event.cookies.set('token', newToken, {
                 httpOnly: true,
@@ -52,5 +49,8 @@ export async function handle({ event, resolve }) {
             if(event.url.pathname=='/upravljanje/prijava') return Response.redirect(event.url.href.split('/').slice(0,3).join('/') + '/upravljanje', 302);
         }
     }
-    return resolve(event);
+
+    user.set(event.locals.user ?? null);
+    const response = await resolve(event);
+    return response;
 }
