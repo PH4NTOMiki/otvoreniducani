@@ -1,14 +1,10 @@
 <script>
     import { onMount } from 'svelte';
-    import { user, refreshToken, initAuth } from '$lib/auth';
-    import { goto } from '$app/navigation';
+    import { user, initAuth } from '$lib/auth';
     export let data;
 
+    if (data.user) $user = data.user;
     onMount(async () => {
-        if (!$user) {
-            // @ts-ignore
-            $user = data.user;
-        }
         initAuth();
     });
 </script>
