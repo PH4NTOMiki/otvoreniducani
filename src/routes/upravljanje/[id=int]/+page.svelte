@@ -3,7 +3,7 @@
 	import { onMount } from 'svelte';
 	import { writable } from 'svelte/store';
 	
-	const inputClass = 'input input-bordered w-32 text-center';
+	const inputClass = 'input input-bordered w-36 text-center';
 	const dayNames = ['Ponedjeljak', 'Utorak', 'Srijeda', 'Četvrtak', 'Petak', 'Subota', 'Nedjelja'];
 	
 	export let data;
@@ -259,7 +259,7 @@
 		  <div class="mt-4">
 		  <h3 class="text-lg font-semibold mb-2">Dodaj novi posebni dan</h3>
 		  <div class="flex gap-4">
-			<input type="date" bind:value={newSpecialDay.date} class={inputClass}>
+			<input type="date" bind:value={newSpecialDay.date} class={inputClass} style="width: 10rem">
 			<input type="time" bind:value={newSpecialDay.start} class={inputClass}>
 			<input type="time" bind:value={newSpecialDay.end} class={inputClass}>
 			<button class="btn btn-primary" on:click={addSpecialDay}>Dodaj</button>
@@ -270,7 +270,7 @@
 		  <div class="mt-4">
 			<h3 class="text-lg font-semibold mb-2">Uredi posebni dan</h3>
 			<div class="flex gap-4">
-			  <input type="date" bind:value={editingSpecialDay.date} class={inputClass}>
+			  <input type="date" bind:value={editingSpecialDay.date} class={inputClass} style="width: 10rem">
 			  <input type="time" bind:value={editingSpecialDay.start} class={inputClass}>
 			  <input type="time" bind:value={editingSpecialDay.end} class={inputClass}>
 			  <button class="btn btn-primary" on:click={saveEditSpecialDay}>Spremi</button>
