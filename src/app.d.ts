@@ -10,6 +10,7 @@ declare global {
 				email: string;
 				password: string?;
 				created_at: string;
+				role: 'admin' | 'user';
 				stores_owned: number[];
 				exp: number?;
 				iat: number?;
