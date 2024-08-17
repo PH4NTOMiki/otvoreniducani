@@ -13,9 +13,11 @@
 	let specialDays = writable(data.store.store_days);
 	let newSpecialDay = { date: '', start: '', end: '' };
 	let editingSpecialDay = null;
+	let originalData;
 	
 	onMount(() => {
 	  console.log(data);
+	  originalData = JSON.parse(JSON.stringify(data));
 	});
 	
 	function updateStoreHours(index, type, value) {
@@ -63,36 +65,101 @@
 	  ).pop();
 	}
 	
-	function addSpecialDay() {
+	async function addSpecialDay() {
 	  if (!newSpecialDay.date || !newSpecialDay.start || !newSpecialDay.end) {
 		alert('Please fill in all fields for the new special day.');
 		return;
 	  }
-	  specialDays.update(days => [...days, { ...newSpecialDay, start: `${newSpecialDay.start}:00`, end: `${newSpecialDay.end}:00` }]);
-	  newSpecialDay = { date: '', start: '', end: '' };
+
+	  const response = await fetch('/api/add-edit-special-day', {
+		method: 'POST',
+		headers: {
+		  'Content-Type': 'application/json',
+		},
+		body: JSON.stringify({ ...newSpecialDay, store_id: data.store.id }),
+	  });
+	  if (response.ok) {
+		const result = await response.json();
+		specialDays.update(days => [...days, result.data]);
+		newSpecialDay = { date: '', start: '', end: '' };
+	  } else {
+		console.error('Failed to add special day.');
+	  }
 	}
 	
-	function deleteSpecialDay(index) {
-	  specialDays.update(days => days.filter((_, i) => i !== index));
+	async function deleteSpecialDay(day, index) {
+	  const response = await fetch('/api/add-edit-special-day', {
+		method: 'POST',
+		headers: {
+		  'Content-Type': 'application/json',
+		},
+		body: JSON.stringify({ ...day, delete: true }),
+	  });
+	  if (response.ok) {
+	  	specialDays.update(days => days.filter((_, i) => i !== index));
+	  } else {
+		console.error('Failed to delete special day.');
+	  }
 	}
 	
 	function startEditSpecialDay(day) {
 	  editingSpecialDay = { ...day, start: day.start.slice(0, -3), end: day.end.slice(0, -3) };
 	}
 	
-	function saveEditSpecialDay() {
+	async function saveEditSpecialDay() {
 	  if (!editingSpecialDay.date || !editingSpecialDay.start || !editingSpecialDay.end) {
 		alert('Please fill in all fields for the special day.');
 		return;
 	  }
-	  specialDays.update(days => 
-		days.map(day => 
-		  day.date === editingSpecialDay.date 
-			? { ...editingSpecialDay, start: `${editingSpecialDay.start}:00`, end: `${editingSpecialDay.end}:00` } 
-			: day
-		)
-	  );
-	  editingSpecialDay = null;
+	  const response = await fetch('/api/add-edit-special-day', {
+		method: 'POST',
+		headers: {
+		  'Content-Type': 'application/json',
+		},
+		body: JSON.stringify({...editingSpecialDay, store_id: data.store.id}),
+	  });
+	  if (response.ok) {
+		specialDays.update(days => 
+			days.map(day => 
+			day.date === editingSpecialDay.date 
+				? { ...editingSpecialDay, start: `${editingSpecialDay.start}:00`, end: `${editingSpecialDay.end}:00` } 
+				: day
+			)
+		);
+		editingSpecialDay = null;
+	  } else {
+		console.error('Failed to save special day.');
+	  }
+	}
+	
+	async function saveChanges() {
+	  try {
+		const response = await fetch('/api/save-store-hours', {
+		  method: 'POST',
+		  headers: {
+			'Content-Type': 'application/json',
+		  },
+		  body: JSON.stringify(data.store),
+		});
+		
+		if (response.ok) {
+		  //alert('Promjene su uspješno spremljene!');
+		  originalData = JSON.parse(JSON.stringify(data));
+		} else {
+		  throw new Error('Neuspjelo spremanje promjena.');
+		}
+	  } catch (error) {
+		console.error('Error saving changes:', error);
+		//alert('Došlo je do greške prilikom spremanja promjena. Molimo pokušajte ponovno.');
+	  }
+	}
+	
+	function resetChanges() {
+	  if (confirm('Jeste li sigurni da želite poništiti sve promjene?')) {
+		data = JSON.parse(JSON.stringify(originalData));
+		specialDays.set(data.store.store_days);
+		//alert('Promjene su poništene.');
+	  }
 	}
 	
 	$: weekdayStart = data.store.default_start[0]?.slice(0, -3) || '';
@@ -254,6 +321,10 @@
 			{/if}
 		  </tbody>
 		</table>
+		<div class="mt-4 flex justify-end gap-4">
+		  <button class="btn btn-primary" on:click={saveChanges}>Spremi</button>
+		  <button class="btn btn-outline btn-error" on:click={resetChanges}>Poništi promjene</button>
+		</div>
 	  {:else}
 		<div class="overflow-x-auto">
 		  <div class="mt-4">
@@ -299,7 +370,7 @@
 				  </td>
 				  <td>
 					<button class="btn btn-sm btn-primary mr-2" on:click={() => startEditSpecialDay(storeDay)}>Uredi</button>
-					<button class="btn btn-sm btn-error" on:click={() => deleteSpecialDay(index)}>Obriši</button>
+					<button class="btn btn-sm btn-error" on:click={() => deleteSpecialDay(storeDay, index)}>Obriši</button>
 				  </td>
 				</tr>
 			  {/each}
