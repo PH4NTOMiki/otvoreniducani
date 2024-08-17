@@ -30,7 +30,8 @@
             <tbody>
                 {#each data.stores.filter(store => 
                     store.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                    store.address.toLowerCase().includes(searchTerm.toLowerCase())
+                    store.address.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                    store.town.toLowerCase().includes(searchTerm.toLowerCase())
                 ) as store, index (store.id)}
                     <tr 
                         class="hover:bg-base-200 transition-colors duration-200"
