@@ -2,6 +2,7 @@
     import "../app.css";
     import { user, logout } from "$lib/auth";
     import { goto } from "$app/navigation";
+    import { page } from '$app/stores';
     import { browser } from '$app/environment';
     import { fetchCache } from "$lib/db";
 
@@ -23,7 +24,7 @@
       <a href={$user ? `/upravljanje` : `/`} class="btn btn-ghost text-xl">Otvoreni Dućani</a>
     </div>
     <div class="navbar-end">
-      {#if $user}
+      {#if $page.url.pathname.startsWith('/upravljanje') && $user}
         <h1 class="font-bold">Dobrodošli, {$user.username}!</h1>&nbsp;&nbsp;
         <button on:click={handleLogout} class="btn btn-secondary">Odjava</button>
       {/if}
