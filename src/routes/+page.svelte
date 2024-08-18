@@ -47,14 +47,14 @@ function handleDateChange(event) {
 
 function changeDate() {
     const dayOfWeek = (new Date(selectedDate).getDay() + 6) % 7;
-    console.log(dayOfWeek);
+    //console.log(dayOfWeek);
     /** @type {typeof stores} */
     const tempStores = JSON.parse(JSON.stringify(originalStores));
     stores = tempStores.filter(store => {
         const storeOpen = store.store_days.some(storeDate => {
             return storeDate.date === selectedDate
         }) || store.default_start[dayOfWeek];
-        console.log(storeOpen);
+        //console.log(storeOpen);
         return storeOpen;
     }).map(store => {
         const storeDay = store.store_days.find(storeDate => {
@@ -63,17 +63,17 @@ function changeDate() {
         if(storeDay){
             // @ts-ignore
             store.current_start = storeDay.start;
-            console.log('store.current_start', store.current_start);
+            //console.log('store.current_start', store.current_start);
             // @ts-ignore
             store.current_end = storeDay.end;
-            console.log('store.current_end', store.current_end);
+            //console.log('store.current_end', store.current_end);
         } else {
             // @ts-ignore
             store.current_start = store.default_start[dayOfWeek];
-            console.log('store.current_start', store.current_start);
+            //console.log('store.current_start', store.current_start);
             // @ts-ignore
             store.current_end = store.default_end[dayOfWeek];
-            console.log('store.current_end', store.current_end);
+            //console.log('store.current_end', store.current_end);
         }
         return store;
     });
