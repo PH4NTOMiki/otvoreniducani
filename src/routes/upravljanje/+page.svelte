@@ -1,4 +1,5 @@
 <script>
+    /** @type {import('./$types').PageData} */
     export let data;
     import { fade, fly } from 'svelte/transition';
     let searchTerm = '';
@@ -16,6 +17,9 @@
             placeholder="Pretraži dućane..." 
             class="input input-bordered input-primary w-full max-w-xs"
         />
+        {#if data.user.role === 'admin'}
+            <a href="/upravljanje/dodaj-ducan" class="btn btn-primary ml-4">Dodaj dućan</a>
+        {/if}
     </div>
 
     <div class="overflow-x-auto shadow-2xl rounded-lg bg-base-100">
