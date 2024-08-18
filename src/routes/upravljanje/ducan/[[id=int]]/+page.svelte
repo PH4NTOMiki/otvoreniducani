@@ -1,8 +1,12 @@
 <script>
+
 	import { goto, invalidate } from '$app/navigation';
     import { fade } from 'svelte/transition';
 
+    export let data;
+
     let formData = {
+        id: null,
         title: '',
         address: '',
         town: '',
@@ -10,12 +14,17 @@
         coordinate_y: ''
     };
 
+    // If provided, we're in edit mode
+    // @ts-ignore
+    if(data.store?.id) formData = data.store;
+
     let formError = '';
-    let formSuccess = false;
+    let formSuccess = '';
+    let isDeleteModalOpen = false;
 
     async function handleSubmit() {
         formError = '';
-        formSuccess = false;
+        formSuccess = '';
         if (!formData.title || !formData.address || !formData.town || !formData.coordinate_x || !formData.coordinate_y) {
             formError = 'Molimo popunite sva polja.';
             return;
@@ -36,25 +45,40 @@
         });
         const _data = await response.json();
         if (response.ok) {
-            formSuccess = true;
-            formData = {
-                title: '',
-                address: '',
-                town: '',
-                coordinate_x: '',
-                coordinate_y: ''
-            };
+            formSuccess = data.store?.id ? 'Dućan je uspješno ažuriran!' : 'Dućan je uspješno dodan!';
             await invalidate('/upravljanje');
-            goto(`/upravljanje/${_data.data.id}`);
+            if (!data.store?.id) {
+                goto(`/upravljanje/${_data.data.id}`);
+            }
         } else {
             formError = _data.message || 'Došlo je do greške prilikom slanja podataka.';
         }
+    }
+
+    async function handleDelete() {
+        const response = await fetch('/api/edit-store', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                id: data.store?.id,
+                delete: true
+            })
+        });
+        if (response.ok) {
+            await invalidate('/upravljanje');
+            goto('/upravljanje');
+        } else {
+            formError = 'Došlo je do greške prilikom brisanja dućana.';
+        }
+        isDeleteModalOpen = false;
     }
 </script>
 
 <div class="container mx-auto px-4 py-12 max-w-2xl">
     <h2 class="text-4xl font-extrabold text-center mb-8 text-base-content">
-        Dodaj novi <span class="italic text-primary">dućan</span>
+        {data.store?.id ? 'Uredi' : 'Dodaj novi'} <span class="italic text-primary">dućan</span>
     </h2>
 
     <form method="POST" on:submit|preventDefault={handleSubmit} class="bg-base-200 shadow-xl rounded-lg p-6">
@@ -128,7 +152,15 @@
             />
         </div>
 
-        <button type="submit" class="btn btn-primary w-full">Dodaj dućan</button>
+        <button type="submit" class="btn btn-primary w-full">
+            {data.store?.id ? 'Ažuriraj dućan' : 'Dodaj dućan'}
+        </button>
+
+        {#if data.store?.id}
+            <button type="button" class="btn btn-error w-full mt-4" on:click={() => isDeleteModalOpen = true}>
+                Obriši dućan
+            </button>
+        {/if}
 
         {#if formError}
             <p class="text-error mt-4" in:fade>
@@ -138,14 +170,26 @@
 
         {#if formSuccess}
             <p class="text-success mt-4" in:fade>
-                Dućan je uspješno dodan!
+                {formSuccess}
             </p>
         {/if}
     </form>
 
     <div class="mt-8 text-center">
-        <a href="/" class="btn btn-outline btn-secondary">
+        <a href="/upravljanje" class="btn btn-outline btn-secondary">
             Povratak na popis dućana
         </a>
     </div>
 </div>
+
+{#if isDeleteModalOpen}
+    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+        <div class="bg-base-100 p-6 rounded-lg">
+            <h3 class="text-lg font-bold mb-4">Jeste li sigurni da želite obrisati ovaj dućan?</h3>
+            <div class="flex justify-end">
+                <button class="btn btn-outline mr-2" on:click={() => isDeleteModalOpen = false}>Odustani</button>
+                <button class="btn btn-error" on:click={handleDelete}>Obriši</button>
+            </div>
+        </div>
+    </div>
+{/if}
