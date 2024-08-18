@@ -3,7 +3,7 @@ import {db} from '$lib/db';
 import { onMount } from 'svelte';
 import { distance } from '$lib/distance';
 
-
+let mounted = false;
 /** @type {GeolocationCoordinates?} */
 let coords;
 let selectedDate = new Date().toISOString().split('T')[0]; // default to today's date
@@ -13,8 +13,9 @@ let map;
 let mapLayerGroup;
 /** @type {import('./$types').PageData} */
 export let data;
-let { originalStores } = data;
-let stores = [...originalStores];
+let { stores } = data;
+/** @type {typeof stores} */
+let originalStores = JSON.parse(JSON.stringify(stores));
 // @ts-ignore
 $: storesToShow = stores.map(store => {if(coords?.latitude){store.distance = distance(coords.latitude, coords.longitude, store.coordinate_x, store.coordinate_y)};return store;}).sort((a, b) => a.distance - b.distance);
 
@@ -34,6 +35,7 @@ onMount(() => {
         map.panTo([coords.latitude, coords.longitude]);
         //updateStoresAndMap();
     }, console.error, {enableHighAccuracy: true});
+    mounted = true;
     changeDate();
 });
 
@@ -46,7 +48,9 @@ function handleDateChange(event) {
 function changeDate() {
     const dayOfWeek = (new Date(selectedDate).getDay() + 6) % 7;
     console.log(dayOfWeek);
-    stores = originalStores.filter(store => {
+    /** @type {typeof stores} */
+    const tempStores = JSON.parse(JSON.stringify(originalStores));
+    stores = tempStores.filter(store => {
         const storeOpen = store.store_days.some(storeDate => {
             return storeDate.date === selectedDate
         }) || store.default_start[dayOfWeek];
@@ -74,13 +78,16 @@ function changeDate() {
         return store;
     });
     
-    mapLayerGroup.clearLayers();
-    stores.forEach(store => {
-        // @ts-ignore
-        L.marker([store.coordinate_x, store.coordinate_y]).addTo(mapLayerGroup).bindPopup(`${store.title}<br>${store.address}<br>${store.town}<br>Radno vrijeme: <br>${store.current_start?.slice(0, -3)} - ${store.current_end?.slice(0, -3)}`);
-    });
+    if (mounted) {
+        mapLayerGroup.clearLayers();
+        stores.forEach(store => {
+            // @ts-ignore
+            L.marker([store.coordinate_x, store.coordinate_y]).addTo(mapLayerGroup).bindPopup(`${store.title}<br>${store.address}<br>${store.town}<br>Radno vrijeme: <br>${store.current_start?.slice(0, -3)} - ${store.current_end?.slice(0, -3)}`);
+        });
+    }
 }
 
+changeDate();
 </script>
 
 <label class="input input-bordered input-error flex items-center gap-2 w-[208px]">
