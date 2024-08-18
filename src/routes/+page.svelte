@@ -59,13 +59,17 @@ function changeDate() {
         if(storeDay){
             // @ts-ignore
             store.current_start = storeDay.start;
+            console.log('store.current_start', store.current_start);
             // @ts-ignore
             store.current_end = storeDay.end;
+            console.log('store.current_end', store.current_end);
         } else {
             // @ts-ignore
             store.current_start = store.default_start[dayOfWeek];
+            console.log('store.current_start', store.current_start);
             // @ts-ignore
             store.current_end = store.default_end[dayOfWeek];
+            console.log('store.current_end', store.current_end);
         }
         return store;
     });

@@ -16,7 +16,7 @@
 	let originalData;
 	
 	onMount(() => {
-	  console.log(data);
+	  //console.log(data);
 	  originalData = JSON.parse(JSON.stringify(data));
 	});
 	
@@ -76,7 +76,7 @@
 		headers: {
 		  'Content-Type': 'application/json',
 		},
-		body: JSON.stringify({ ...newSpecialDay, store_id: data.store.id }),
+		body: JSON.stringify({ ...newSpecialDay, start: `${newSpecialDay.start}:00`, end: `${newSpecialDay.end}:00`, store_id: data.store.id }),
 	  });
 	  if (response.ok) {
 		const result = await response.json();

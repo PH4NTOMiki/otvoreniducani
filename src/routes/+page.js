@@ -7,7 +7,7 @@ export async function load() {
 	// @ts-ignore
 	const { data: originalStores } = await db.from('stores').select('*, store_days (*)');
     if (originalStores) {
-		console.log(originalStores);
+		//console.log(originalStores);
 		return {originalStores};
 	}
 
