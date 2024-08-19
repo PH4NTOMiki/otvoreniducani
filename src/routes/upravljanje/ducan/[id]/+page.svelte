@@ -1,6 +1,6 @@
 <script>
-
-	import { goto, invalidate } from '$app/navigation';
+    import { goto, invalidate } from '$app/navigation';
+	import { onMount } from 'svelte';
     import { fade } from 'svelte/transition';
 
     export let data;
@@ -21,6 +21,10 @@
     let formError = '';
     let formSuccess = '';
     let isDeleteModalOpen = false;
+
+    onMount(() => {
+        if (location.hash === '#izbrisi') isDeleteModalOpen = true;
+    });
 
     async function handleSubmit() {
         formError = '';
@@ -72,6 +76,11 @@
         } else {
             formError = 'Došlo je do greške prilikom brisanja dućana.';
         }
+        isDeleteModalOpen = false;
+    }
+
+    function closeDeleteModal() {
+        if (location.hash === '#izbrisi') history.replaceState(history.state, document.title, location.href.split('#')[0]);
         isDeleteModalOpen = false;
     }
 </script>
@@ -187,7 +196,7 @@
         <div class="bg-base-100 p-6 rounded-lg">
             <h3 class="text-lg font-bold mb-4">Jeste li sigurni da želite obrisati ovaj dućan?</h3>
             <div class="flex justify-end">
-                <button class="btn btn-outline mr-2" on:click={() => isDeleteModalOpen = false}>Odustani</button>
+                <button class="btn btn-outline mr-2" on:click={closeDeleteModal}>Odustani</button>
                 <button class="btn btn-error" on:click={handleDelete}>Obriši</button>
             </div>
         </div>

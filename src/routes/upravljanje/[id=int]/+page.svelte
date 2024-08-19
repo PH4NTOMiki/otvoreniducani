@@ -180,6 +180,11 @@
   <div class="text-center mb-8">
 	<h2 class="text-4xl font-extrabold text-primary">{data.store.title}</h2>
 	<h3 class="mt-2 text-xl text-gray-600">{data.store.address}, {data.store.town}</h3>
+	{#if data.user.role === 'admin'}
+		<br>
+		<a href={`/upravljanje/ducan/${data.store.id}`} class="btn btn-primary ml-4">Uredi dućan</a>
+		<a href={`/upravljanje/ducan/${data.store.id}#izbrisi`} class="btn btn-error ml-4">Izbriši dućan</a>
+	{/if}
   </div>
 
   <div class="card bg-base-100 shadow-xl">

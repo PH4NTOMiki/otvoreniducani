@@ -18,7 +18,7 @@
             class="input input-bordered input-primary w-full max-w-xs"
         />
         {#if data.user.role === 'admin'}
-            <a href="/upravljanje/dodaj-ducan" class="btn btn-primary ml-4">Dodaj dućan</a>
+            <a href="/upravljanje/ducan/dodaj" class="btn btn-primary ml-4">Dodaj dućan</a>
         {/if}
     </div>
 
