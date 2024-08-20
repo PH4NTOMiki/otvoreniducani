@@ -1,5 +1,6 @@
 <script>
 	// @ts-nocheck
+	import { goto, invalidate } from '$app/navigation';
 	import { onMount } from 'svelte';
 	import { writable } from 'svelte/store';
 	
@@ -14,6 +15,7 @@
 	let newSpecialDay = { date: '', start: '', end: '' };
 	let editingSpecialDay = null;
 	let originalData;
+	let isDeleteModalOpen = false;
 	
 	onMount(() => {
 	  //console.log(data);
@@ -161,6 +163,26 @@
 		//alert('Promjene su poništene.');
 	  }
 	}
+
+	async function handleDelete() {
+        const response = await fetch('/api/edit-store', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                id: data.store?.id,
+                delete: true
+            })
+        });
+        if (response.ok) {
+            await invalidate('/upravljanje');
+            goto('/upravljanje');
+        } else {
+            //formError = 'Došlo je do greške prilikom brisanja dućana.';
+        }
+        isDeleteModalOpen = false;
+    }
 	
 	$: weekdayStart = data.store.default_start[0]?.slice(0, -3) || '';
 	$: weekdayEnd = data.store.default_end[0]?.slice(0, -3) || '';
@@ -183,7 +205,7 @@
 	{#if data.user.role === 'admin'}
 		<br>
 		<a href={`/upravljanje/ducan/${data.store.id}`} class="btn btn-primary ml-4">Uredi dućan</a>
-		<a href={`/upravljanje/ducan/${data.store.id}#izbrisi`} class="btn btn-error ml-4">Izbriši dućan</a>
+		<button on:click={() => isDeleteModalOpen = true} class="btn btn-error ml-4">Izbriši dućan</button>
 	{/if}
   </div>
 
@@ -386,3 +408,15 @@
 	</div>
   </div>
 </div>
+
+{#if isDeleteModalOpen}
+    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+        <div class="bg-base-100 p-6 rounded-lg">
+            <h3 class="text-lg font-bold mb-4">Jeste li sigurni da želite obrisati ovaj dućan?</h3>
+            <div class="flex justify-end">
+                <button class="btn btn-outline mr-2" on:click={() => isDeleteModalOpen = false}>Odustani</button>
+                <button class="btn btn-error" on:click={handleDelete}>Obriši</button>
+            </div>
+        </div>
+    </div>
+{/if}
