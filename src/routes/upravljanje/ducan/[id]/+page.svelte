@@ -1,5 +1,6 @@
 <script>
     import { goto, invalidate } from '$app/navigation';
+    import { page } from '$app/stores';
 	import { onMount } from 'svelte';
     import { fade } from 'svelte/transition';
 
@@ -20,10 +21,11 @@
 
     let formError = '';
     let formSuccess = '';
-    let isDeleteModalOpen = false;
+    let isDeleteModalOpen = $page.url.hash === '#izbrisi';
 
     onMount(() => {
-        if (location.hash === '#izbrisi') isDeleteModalOpen = true;
+        // now using $page.url.hash instead of location.hash when setting isDeleteModalOpen
+        //if (location.hash === '#izbrisi') isDeleteModalOpen = true;
     });
 
     async function handleSubmit() {
