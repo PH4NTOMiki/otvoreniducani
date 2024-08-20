@@ -1,13 +1,13 @@
 <script>
     import { login } from '$lib/auth';
-    import { goto } from '$app/navigation';
+    import { goto, invalidate } from '$app/navigation';
 
     let username = '';
     let password = '';
 
     async function handleSubmit() {
         if (await login(username, password)) {
-            goto('/upravljanje');
+            await goto(`/upravljanje${new URL(location.href).searchParams.get('to') ?? ''}`, { invalidateAll: true });
         } else {
             alert('Login failed');
         }
