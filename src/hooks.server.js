@@ -45,7 +45,7 @@ export async function handle({ event, resolve }) {
     
     if (event.url.pathname.startsWith('/upravljanje')) {
         if (!event.locals.user) {
-            if(event.url.pathname!='/upravljanje/prijava') return Response.redirect(event.url.href.split('/').slice(0,3).join('/') + '/upravljanje/prijava?to=' + event.url.pathname.slice(12) + event.url.search, 302);
+            if(event.url.pathname!='/upravljanje/prijava') return Response.redirect(event.url.href.split('/').slice(0,3).join('/') + '/upravljanje/prijava'+(event.url.pathname.length>12?('?to=' + event.url.pathname.slice(12) + event.url.search):''), 302);
         } else {
             if(event.url.pathname=='/upravljanje/prijava') return Response.redirect(event.url.href.split('/').slice(0,3).join('/') + '/upravljanje', 302);
         }
