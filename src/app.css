@@ -3,3 +3,4 @@
 @tailwind utilities;
 
 .leaflet-attribution-flag {display: none !important;}
+body > div > br {display: none !important;}
