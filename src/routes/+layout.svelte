@@ -5,6 +5,7 @@
     import { page } from '$app/stores';
     import { browser } from '$app/environment';
     import { fetchCache } from "$lib/db";
+	import { LogOut } from "lucide-svelte";
 
     async function handleLogout() {
         await logout();
@@ -26,7 +27,7 @@
     <div class="navbar-end">
       {#if $page.url.pathname.startsWith('/upravljanje') && $user}
         <h1 class="font-bold">Dobrodošli, {$user.username}!</h1>&nbsp;&nbsp;
-        <button on:click={handleLogout} class="btn btn-secondary">Odjava</button>
+        <button on:click={handleLogout} class="btn btn-secondary"><LogOut class="mr-2" size={18} />Odjava</button>
       {/if}
     </div>
   </div>

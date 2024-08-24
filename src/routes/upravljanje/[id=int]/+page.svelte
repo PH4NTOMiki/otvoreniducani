@@ -1,6 +1,7 @@
 <script>
 	// @ts-nocheck
 	import { goto, invalidate } from '$app/navigation';
+	import { Edit, Trash } from 'lucide-svelte';
 	import { onMount } from 'svelte';
 	import { writable } from 'svelte/store';
 	
@@ -204,8 +205,8 @@
 	<h3 class="mt-2 text-xl text-gray-600">{data.store.address}, {data.store.town}</h3>
 	{#if data.user.role === 'admin'}
 		<br>
-		<a href={`/upravljanje/ducan/${data.store.id}`} class="btn btn-primary ml-4">Uredi dućan</a>
-		<button on:click={() => isDeleteModalOpen = true} class="btn btn-error ml-4">Izbriši dućan</button>
+		<a href={`/upravljanje/ducan/${data.store.id}`} class="btn btn-primary ml-4"><Edit class="mr-2" size={18} />Uredi dućan</a>
+		<button on:click={() => isDeleteModalOpen = true} class="btn btn-error ml-4"><Trash class="mr-2" size={18} />Izbriši dućan</button>
 	{/if}
   </div>
 
