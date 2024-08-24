@@ -31,5 +31,4 @@
       {/if}
     </div>
   </div>
-  <br>
   <slot />
