@@ -1,4 +1,5 @@
 <script>
+	import { CirclePlus } from 'lucide-svelte';
     /** @type {import('./$types').PageData} */
     export let data;
     import { fade, fly } from 'svelte/transition';
@@ -10,7 +11,7 @@
         Najbliži <span class="italic text-primary">otvoreni</span> dućani
     </h2>
 
-    <div class="mb-6">
+    <div class="mb-6 flex items-center space-x-4">
         <input 
             bind:value={searchTerm}
             type="text" 
@@ -18,7 +19,7 @@
             class="input input-bordered input-primary w-full max-w-xs"
         />
         {#if data.user.role === 'admin'}
-            <a href="/upravljanje/ducan/dodaj" class="btn btn-primary ml-4">Dodaj dućan</a>
+            <a href="/upravljanje/ducan/dodaj" class="btn btn-primary inline-flex items-center"><CirclePlus class="mr-1" size={18} />Dodaj dućan</a>
         {/if}
     </div>
 
