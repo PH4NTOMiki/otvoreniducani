@@ -3,7 +3,7 @@ import { SECRET_KEY } from '$env/static/private';
 import { clearFetchCache } from '$lib/db';
 import { findUserByUsername } from '$lib/user-server';
 import { user } from '$lib/auth';
-import { get } from 'svelte/store';
+import { json } from '@sveltejs/kit';
 
 /** @type {import('@sveltejs/kit').Handle} */
 export async function handle({ event, resolve }) {
@@ -37,9 +37,7 @@ export async function handle({ event, resolve }) {
             });
         } catch (error) {
             event.cookies.delete('refreshToken', { path: '/' });
-            return new Response(JSON.stringify({ error: 'Invalid refresh token' }), {
-                status: 401
-            });
+            return json({ error: 'Invalid refresh token' }, { status: 401 });
         }
     }
     
@@ -52,7 +50,6 @@ export async function handle({ event, resolve }) {
     }
 
     user.set(event.locals.user ?? null);
-    //console.log('server $user', get(user))
     const response = await resolve(event);
     return response;
 }

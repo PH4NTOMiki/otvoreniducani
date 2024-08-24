@@ -1,14 +1,13 @@
 import jwt from 'jsonwebtoken';
 import { SECRET_KEY } from '$env/static/private';
 import { findUserByUsername } from '$lib/user-server';
+import { json } from '@sveltejs/kit';
 
 export async function POST({ cookies }) {
     const refreshToken = cookies.get('refreshToken');
 
     if (!refreshToken) {
-        return new Response(JSON.stringify({ error: 'No refresh token' }), {
-            status: 401
-        });
+        return json({ error: 'No refresh token' }, {status: 401});
     }
 
     try {
@@ -25,15 +24,10 @@ export async function POST({ cookies }) {
             path: '/'
         });
 
-        return new Response(JSON.stringify({ user: JSON.parse(Buffer.from(newToken.split('.')[1], 'base64').toString()) }), {
-            headers: { 'Content-Type': 'application/json' },
-            status: 200
-        });
+        return json({ user: JSON.parse(Buffer.from(newToken.split('.')[1], 'base64').toString()) });
     } catch (error) {
         cookies.delete('token', { path: '/' });
         cookies.delete('refreshToken', { path: '/' });
-        return new Response(JSON.stringify({ error: 'Invalid refresh token' }), {
-            status: 401
-        });
+        return json({ error: 'Invalid refresh token' }, {status: 401});
     }
 }

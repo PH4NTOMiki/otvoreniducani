@@ -2,14 +2,15 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import { SECRET_KEY } from '$env/static/private';
 import { findUserByUsernameWithPassword } from '$lib/user-server';
+import { json } from '@sveltejs/kit';
 
 export async function POST({ request, cookies }) {
     const { username, password } = await request.json();
 
     const user = await findUserByUsernameWithPassword(username);
-    if(!user)return new Response(JSON.stringify({ error: 'No user' }), {headers: { 'Content-Type': 'application/json' }, status: 401});
+    if(!user)return json({ error: 'No user' }, {status: 401});
     // @ts-ignore
-    if(!(await bcrypt.compare(password, user.password)))return new Response(JSON.stringify({ error: 'Wrong password' }), {headers: { 'Content-Type': 'application/json' }, status: 401});
+    if(!(await bcrypt.compare(password, user.password)))return json({ error: 'Wrong password' }, {status: 401});
     // @ts-ignore
     delete user.password;
     
@@ -33,8 +34,5 @@ export async function POST({ request, cookies }) {
         path: '/'
     });
 
-    return new Response(JSON.stringify({user: JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString())}), {
-        headers: { 'Content-Type': 'application/json' },
-        status: 200
-    });
+    return json({user: JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString())})
 }
