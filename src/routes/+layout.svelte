@@ -26,6 +26,9 @@
     </div>
     <div class="navbar-end">
       {#if $page.url.pathname.startsWith('/upravljanje') && $user}
+        {#if $user.role === 'admin'}
+          <a href="/upravljanje/korisnici" class="btn btn-ghost text-xl">Korisnici</a>
+        {/if}
         <h1 class="font-bold">Dobrodošli, {$user.username}!</h1>&nbsp;&nbsp;
         <button on:click={handleLogout} class="btn btn-secondary"><LogOut class="mr-2" size={18} />Odjava</button>
       {/if}

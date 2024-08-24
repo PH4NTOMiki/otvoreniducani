@@ -1,46 +1,59 @@
 <script>
+    // @ts-nocheck
     /** @type {import('./$types').PageData} */
     export let data;
     import { goto } from '$app/navigation';
-    import { User, Mail, Shield, Store, Save, Trash2, ArrowLeft, Plus, X } from 'lucide-svelte';
+    import { User, Mail, Shield, Store, Save, Trash2, ArrowLeft, Plus, X, Lock } from 'lucide-svelte';
 
-    let user = { ...data.user, stores_owned: [...data.user.stores_owned] };
+    let userEdit = data.userEdit ? { ...data.userEdit, stores_owned: [...data.userEdit.stores_owned] } : { username: '', email: '', role: 'user', stores_owned: [] };
     let isLoading = false;
     let errorMessage = '';
     let newStore = '';
+    let isAddMode = !data.userEdit;
+    let newPassword = '';
+    let confirmPassword = '';
 
     function addStore() {
-        // @ts-ignore
-        if (newStore && !user.stores_owned.includes(newStore)) {
-            // @ts-ignore
-            user.stores_owned = [...user.stores_owned, newStore];
+        if (newStore && !userEdit.stores_owned.includes(newStore)) {
+            userEdit.stores_owned = [...userEdit.stores_owned, newStore];
             newStore = '';
         }
     }
 
     /**
-	 * @param {number} store
-	 */
+     * @param {string} store
+     */
     function removeStore(store) {
-        user.stores_owned = user.stores_owned.filter(s => s !== store);
+        userEdit.stores_owned = userEdit.stores_owned.filter(s => s !== store);
     }
 
     async function saveUser() {
         isLoading = true;
         errorMessage = '';
 
+        if (newPassword !== confirmPassword) {
+            errorMessage = 'Passwords do not match';
+            isLoading = false;
+            return;
+        }
+
         try {
-            const response = await fetch(`/api/users/${user.id}`, {
-                method: 'PUT',
+            const userData = {
+                ...userEdit,
+                password: newPassword || undefined // Only include password if it's been changed
+            };
+
+            const response = await fetch('/api/edit-user', {
+                method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(user)
+                body: JSON.stringify(userData)
             });
 
             if (!response.ok) {
-                throw new Error('Failed to update user');
+                throw new Error(isAddMode ? 'Failed to add user' : 'Failed to update user');
             }
 
-            goto('/admin/users');
+            goto('/upravljanje/korisnici');
         } catch (error) {
             // @ts-ignore
             errorMessage = error.message;
@@ -56,15 +69,18 @@
         errorMessage = '';
 
         try {
-            const response = await fetch(`/api/users/${user.id}`, { method: 'DELETE' });
+            const response = await fetch('/api/edit-user', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({id: userEdit.id, delete: true})
+            });
 
             if (!response.ok) {
                 throw new Error('Failed to delete user');
             }
 
-            goto('/admin/users');
+            goto('/upravljanje/korisnici');
         } catch (error) {
-            // @ts-ignore
             errorMessage = error.message;
         } finally {
             isLoading = false;
@@ -77,7 +93,7 @@
         <div class="bg-base-100 shadow-xl rounded-box p-8">
             <h2 class="text-3xl font-bold text-primary mb-8 flex items-center">
                 <User class="mr-4" size={32} />
-                Uredi korisnika: {user.username}
+                {isAddMode ? 'Dodaj novog korisnika' : `Uredi korisnika: ${userEdit.username}`}
             </h2>
 
             <form on:submit|preventDefault={saveUser} class="space-y-6">
@@ -88,7 +104,7 @@
                             Korisničko ime
                         </span>
                     </label>
-                    <input id="username" bind:value={user.username} class="input input-bordered w-full" />
+                    <input id="username" bind:value={userEdit.username} class="input input-bordered w-full" required />
                 </div>
 
                 <div class="form-control">
@@ -98,7 +114,27 @@
                             Email
                         </span>
                     </label>
-                    <input id="email" type="email" bind:value={user.email} class="input input-bordered w-full" />
+                    <input id="email" type="email" bind:value={userEdit.email} class="input input-bordered w-full" required />
+                </div>
+
+                <div class="form-control">
+                    <label for="new-password" class="label">
+                        <span class="label-text flex items-center">
+                            <Lock class="mr-2" size={18} />
+                            {isAddMode ? 'Lozinka' : 'Nova lozinka (ostavite prazno ako ne želite promijeniti)'}
+                        </span>
+                    </label>
+                    <input id="new-password" type="password" bind:value={newPassword} class="input input-bordered w-full" />
+                </div>
+
+                <div class="form-control">
+                    <label for="confirm-password" class="label">
+                        <span class="label-text flex items-center">
+                            <Lock class="mr-2" size={18} />
+                            Potvrdite lozinku
+                        </span>
+                    </label>
+                    <input id="confirm-password" type="password" bind:value={confirmPassword} class="input input-bordered w-full" />
                 </div>
 
                 <div class="form-control">
@@ -108,7 +144,7 @@
                             Uloga
                         </span>
                     </label>
-                    <select id="role" bind:value={user.role} class="select select-bordered w-full">
+                    <select id="role" bind:value={userEdit.role} class="select select-bordered w-full">
                         <option value="user">Korisnik</option>
                         <option value="admin">Admin</option>
                     </select>
@@ -122,7 +158,7 @@
                         </span>
                     </label>
                     <div class="flex flex-wrap gap-2 mb-2">
-                        {#each user.stores_owned as store}
+                        {#each userEdit.stores_owned as store}
                             <div class="badge badge-primary badge-lg gap-2">
                                 {store}
                                 <button type="button" class="btn btn-ghost btn-xs" on:click={() => removeStore(store)}>
@@ -154,10 +190,14 @@
                 {/if}
 
                 <div class="flex justify-between items-center pt-4">
-                    <button type="button" on:click={deleteUser} class="btn btn-error" disabled={isLoading}>
-                        <Trash2 class="mr-2" size={18} />
-                        Izbriši korisnika
-                    </button>
+                    {#if !isAddMode}
+                        <button type="button" on:click={deleteUser} class="btn btn-error" disabled={isLoading}>
+                            <Trash2 class="mr-2" size={18} />
+                            Izbriši korisnika
+                        </button>
+                    {:else}
+                        <div></div>
+                    {/if}
                     <div class="space-x-2">
                         <a href="/upravljanje/korisnici" class="btn btn-ghost">
                             <ArrowLeft class="mr-2" size={18} />
@@ -165,7 +205,7 @@
                         </a>
                         <button type="submit" class="btn btn-primary" disabled={isLoading}>
                             <Save class="mr-2" size={18} />
-                            {isLoading ? 'Spremanje...' : 'Spremi'}
+                            {isLoading ? 'Spremanje...' : (isAddMode ? 'Dodaj' : 'Spremi')}
                         </button>
                     </div>
                 </div>
