@@ -1,6 +1,7 @@
 <script>
     import { login } from '$lib/auth';
-    import { goto, invalidate } from '$app/navigation';
+    import { goto } from '$app/navigation';
+	import { LogIn } from 'lucide-svelte';
 
     let username = '';
     let password = '';
@@ -38,7 +39,7 @@
                 <label for="password" class="block text-gray-700 text-sm font-semibold mb-2">Lozinka</label>
                 <input bind:value={password} type="password" id="password" class="w-full px-4 py-2 border rounded-lg text-gray-700 focus:outline-none focus:border-indigo-500" placeholder="••••••••" required />
             </div>
-            <button type="submit" class="w-full bg-indigo-600 text-white font-semibold py-3 rounded-lg hover:bg-indigo-700 transition-colors">Prijava</button>
+            <button type="submit" class="w-full bg-indigo-600 text-white font-semibold py-3 rounded-lg hover:bg-indigo-700 transition-colors"><LogIn class="mr-2 inline-block" size={18} />Prijava</button>
         </form>
         <!--<div class="mt-8 text-center">
             <a href="#" class="text-indigo-600 hover:underline">Forgot Password?</a>
