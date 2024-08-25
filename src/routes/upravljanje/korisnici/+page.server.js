@@ -9,7 +9,8 @@ export async function load({ locals }) {
     // @ts-ignore
     const { data: users } = await db.from('store_users').select('*');
     if (users) {
-		return {users};
+		  // @ts-ignore
+      return {users: users.map(user => {delete user.password;return user})};
 	}
 
 	error(404, 'Not found');

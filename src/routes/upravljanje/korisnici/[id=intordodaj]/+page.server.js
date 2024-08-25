@@ -10,6 +10,8 @@ export async function load({ locals, params }) {
   // @ts-ignore
   const { data: userEdit } = await db.from('store_users').select('*').eq('id', params.id).limit(1).single();
   if (userEdit) {
+    // @ts-ignore
+    delete userEdit.password;
     return {userEdit};
 	}
 
