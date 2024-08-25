@@ -3,7 +3,7 @@ import { db } from '$lib/db-server';
 
 export async function POST({ request, locals }) {
   try {
-    /** @type {App.PageData["store"]} */
+    /** @type {App.Store} */
     const store = await request.json();
     if(locals.user.role !== 'admin') error(401, 'Unauthorized');
     
@@ -31,7 +31,7 @@ export async function POST({ request, locals }) {
             return json({ success: true, message: 'Dućan uspješno ažuriran' });
         }
       } else {
-        /** @type {{data: App.PageData["store"]}} */
+        /** @type {{data: App.Store}} */
         // @ts-ignore
         const { data, error: insertError } = await db
           .from('stores')

@@ -3,7 +3,7 @@ import { db } from '$lib/db-server';
 
 export async function POST({ request, locals }) {
   try {
-    /** @type {App.PageData["store"]} */
+    /** @type {App.Store} */
     const storeData = await request.json();
     if(!locals.user.stores_owned.includes(storeData.id) && locals.user.role !== 'admin') error(401, 'Unauthorized');
     

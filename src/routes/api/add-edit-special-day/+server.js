@@ -3,7 +3,7 @@ import { db } from '$lib/db-server';
 
 export async function POST({ request, locals }) {
   try {
-    /** @type {App.PageData["store"]["store_days"][0]} */
+    /** @type {App.Store["store_days"][0]} */
     const storeDay = await request.json();
     if(!locals.user.stores_owned.includes(storeDay.store_id) && locals.user.role !== 'admin') error(401, 'Unauthorized');
     
@@ -29,7 +29,7 @@ export async function POST({ request, locals }) {
             return json({ success: true, message: 'Posebni dan uspješno izmijenjen' });
         }
       } else {
-        /** @type {{data: App.PageData["store"]["store_days"][0]}} */
+        /** @type {{data: App.Store["store_days"][0]}} */
         // @ts-ignore
         const { data, error: insertError } = await db
           .from('store_days')

@@ -16,10 +16,7 @@ declare global {
 				iat: number?;
 			}
 		}
-		interface PageData {
-			store: Store;
-			stores: Store[];
-		}
+		// interface PageData {}
 		// interface PageState {}
 		// interface Platform {}
 		interface Store {
