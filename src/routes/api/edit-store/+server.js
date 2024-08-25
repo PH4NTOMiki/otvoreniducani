@@ -3,16 +3,19 @@ import { db } from '$lib/db-server';
 
 export async function POST({ request, locals }) {
   try {
+    /** @type {App.PageData["store"]} */
     const store = await request.json();
     if(locals.user.role !== 'admin') error(401, 'Unauthorized');
     
     if (store.id) {
+        // @ts-ignore
         if (store.delete) {
             const { error: deleteError } = await db
             .from('stores')
             .delete()
             .eq('id', store.id);
             if (deleteError) throw deleteError;
+            return json({ success: true, message: 'Dućan uspješno izbrisan' });
         } else {
             const { error: updateError } = await db
             .from('stores')
@@ -25,8 +28,11 @@ export async function POST({ request, locals }) {
             })
             .eq('id', store.id);
             if (updateError) throw updateError;
+            return json({ success: true, message: 'Dućan uspješno ažuriran' });
         }
       } else {
+        /** @type {{data: App.PageData["store"]}} */
+        // @ts-ignore
         const { data, error: insertError } = await db
           .from('stores')
           .insert({
@@ -42,12 +48,10 @@ export async function POST({ request, locals }) {
           .single();
           
           if (insertError) throw insertError;
-          return json({ success: true, message: 'Store hours added successfully', data });
+          return json({ success: true, message: 'Dućan uspješno kreiran', data });
       }
-
-    return json({ success: true, message: 'Store hours updated successfully' });
   } catch (error) {
-    console.error('Error updating store hours:', error);
-    return json({ success: false, message: 'Failed to update store hours' }, { status: 500 });
+    console.error('Error updating store:', error);
+    return json({ success: false, message: 'Dogodila se greška' }, { status: 500 });
   }
 }

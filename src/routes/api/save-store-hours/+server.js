@@ -3,8 +3,9 @@ import { db } from '$lib/db-server';
 
 export async function POST({ request, locals }) {
   try {
+    /** @type {App.PageData["store"]} */
     const storeData = await request.json();
-    if(!locals.user.stores_owned.includes(parseInt(storeData.id)) && locals.user.role !== 'admin') error(401, 'Unauthorized');
+    if(!locals.user.stores_owned.includes(storeData.id) && locals.user.role !== 'admin') error(401, 'Unauthorized');
     
     const { error: _err } = await db
       .from('stores')
@@ -17,9 +18,9 @@ export async function POST({ request, locals }) {
 
     if (_err) throw _err;
 
-    return json({ success: true, message: 'Store hours updated successfully' });
+    return json({ success: true, message: 'Radni sati uspješno ažurirani' });
   } catch (error) {
     console.error('Error updating store hours:', error);
-    return json({ success: false, message: 'Failed to update store hours' }, { status: 500 });
+    return json({ success: false, message: 'Dogodila se greška' }, { status: 500 });
   }
 }
