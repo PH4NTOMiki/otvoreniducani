@@ -14,8 +14,15 @@ export async function POST({ request, locals }) {
       role: user.role,
       stores_owned: user.stores_owned,
     };
-    // @ts-ignore
-    if (user.password) {_user.password = await bcrypt.hash(user.password, 10)}
+
+    // Password validation
+    if (user.password) {
+      if (user.password.length < 8) {
+        return json({ success: false, message: 'Lozinka mora biti najmanje 8 znakova dugačka' }, { status: 400 });
+      }
+      // @ts-ignore
+      _user.password = await bcrypt.hash(user.password, 10);
+    }
     
     if (user.id) {
         // @ts-ignore
@@ -34,7 +41,12 @@ export async function POST({ request, locals }) {
             if (updateError) throw updateError;
             return json({ success: true, message: 'Korisnik uspješno ažuriran' });
         }
-      } else {
+    } else {
+        // Ensure password is provided for new users
+        if (!user.password) {
+            return json({ success: false, message: 'Lozinka je obavezna za nove korisnike' }, { status: 400 });
+        }
+
         /** @type {{data: App.Locals["user"]}} */
         // @ts-ignore
         const { data, error: insertError } = await db
@@ -43,11 +55,11 @@ export async function POST({ request, locals }) {
           .select()
           .single();
           
-          if (insertError) throw insertError;
-          // @ts-ignore
-          delete data.password;
-          return json({ success: true, message: 'Korisnik uspješno kreiran', data });
-      }
+        if (insertError) throw insertError;
+        // @ts-ignore
+        delete data.password;
+        return json({ success: true, message: 'Korisnik uspješno kreiran', data });
+    }
   } catch (err) {
     console.error('Error updating user:', err);
     return json({ success: false, message: 'Dogodila se greška' }, { status: 500 });
