@@ -1,4 +1,6 @@
 <script>
+	import { run } from 'svelte/legacy';
+
 	// @ts-nocheck
 	import { goto, invalidate } from '$app/navigation';
 	import { Edit, Trash } from 'lucide-svelte';
@@ -8,15 +10,15 @@
 	const inputClass = 'input input-bordered w-36 text-center';
 	const dayNames = ['Ponedjeljak', 'Utorak', 'Srijeda', 'Četvrtak', 'Petak', 'Subota', 'Nedjelja'];
 	
-	export let data;
+	let { data = $bindable() } = $props();
 	
-	let activeTab = 'default';
-	let weekdaysGrouped = false;
+	let activeTab = $state('default');
+	let weekdaysGrouped = $state(false);
 	let specialDays = writable(data.store.store_days);
-	let newSpecialDay = { date: '', start: '', end: '' };
-	let editingSpecialDay = null;
+	let newSpecialDay = $state({ date: '', start: '', end: '' });
+	let editingSpecialDay = $state(null);
 	let originalData;
-	let isDeleteModalOpen = false;
+	let isDeleteModalOpen = $state(false);
 	
 	onMount(() => {
 	  //console.log(data);
@@ -185,14 +187,14 @@
         isDeleteModalOpen = false;
     }
 	
-	$: weekdayStart = data.store.default_start[0]?.slice(0, -3) || '';
-	$: weekdayEnd = data.store.default_end[0]?.slice(0, -3) || '';
+	let weekdayStart = $derived(data.store.default_start[0]?.slice(0, -3) || '');
+	let weekdayEnd = $derived(data.store.default_end[0]?.slice(0, -3) || '');
 
-	$: {
+	run(() => {
 		if (weekdaysGrouped) {
 			toggleWeekdayGroup();
 		}
-	}
+	});
 </script>
 
 <svelte:head>
@@ -206,15 +208,15 @@
 	{#if data.user.role === 'admin'}
 		<br>
 		<a href={`/upravljanje/ducan/${data.store.id}`} class="btn btn-primary ml-4"><Edit class="mr-2" size={18} />Uredi dućan</a>
-		<button on:click={() => isDeleteModalOpen = true} class="btn btn-error ml-4"><Trash class="mr-2" size={18} />Izbriši dućan</button>
+		<button onclick={() => isDeleteModalOpen = true} class="btn btn-error ml-4"><Trash class="mr-2" size={18} />Izbriši dućan</button>
 	{/if}
   </div>
 
   <div class="card bg-base-100 shadow-xl">
 	<div class="card-body">
 	  <div class="tabs tabs-boxed mb-4">
-		<button class="tab {activeTab === 'default' ? 'tab-active' : ''}" on:click={() => activeTab = 'default'}>Uobičajeno radno vrijeme</button>
-		<button class="tab {activeTab === 'special' ? 'tab-active' : ''}" on:click={() => activeTab = 'special'}>Posebni dani</button>
+		<button class="tab {activeTab === 'default' ? 'tab-active' : ''}" onclick={() => activeTab = 'default'}>Uobičajeno radno vrijeme</button>
+		<button class="tab {activeTab === 'special' ? 'tab-active' : ''}" onclick={() => activeTab = 'special'}>Posebni dani</button>
 	  </div>
 
 	  {#if activeTab === 'default'}
@@ -242,7 +244,7 @@
 					type="time" 
 					class={inputClass} 
 					value={weekdayStart}
-					on:change={(ev) => {
+					onchange={(ev) => {
 					  for (let i = 0; i < 5; i++) {
 						updateStoreHours(i, 'default_start', ev.target.value);
 					  }
@@ -254,7 +256,7 @@
 					type="time" 
 					class={inputClass} 
 					value={weekdayEnd}
-					on:change={(ev) => {
+					onchange={(ev) => {
 					  for (let i = 0; i < 5; i++) {
 						updateStoreHours(i, 'default_end', ev.target.value);
 					  }
@@ -263,11 +265,11 @@
 				</td>
 				<td>
 				  {#if !weekdayStart || !weekdayEnd}
-					<button class="btn btn-sm btn-primary" on:click={() => {
+					<button class="btn btn-sm btn-primary" onclick={() => {
 					  for (let i = 0; i < 5; i++) openStore(i);
 					}}>Otvori</button>
 				  {:else}
-					<button class="btn btn-sm btn-error" on:click={() => {
+					<button class="btn btn-sm btn-error" onclick={() => {
 					  for (let i = 0; i < 5; i++) closeStore(i);
 					}}>Zatvori</button>
 				  {/if}
@@ -282,7 +284,7 @@
 						type="time" 
 						class={inputClass} 
 						value={data.store.default_start[i + 5]?.slice(0, -3)}
-						on:change={(ev) => updateStoreHours(i + 5, 'default_start', ev.target.value)}
+						onchange={(ev) => updateStoreHours(i + 5, 'default_start', ev.target.value)}
 					  >
 					{:else}
 					  <span class="text-error">Zatvoreno</span>
@@ -294,7 +296,7 @@
 						type="time" 
 						class={inputClass} 
 						value={data.store.default_end[i + 5]?.slice(0, -3)}
-						on:change={(ev) => updateStoreHours(i + 5, 'default_end', ev.target.value)}
+						onchange={(ev) => updateStoreHours(i + 5, 'default_end', ev.target.value)}
 					  >
 					{:else}
 					  <span class="text-error">Zatvoreno</span>
@@ -302,9 +304,9 @@
 				  </td>
 				  <td>
 					{#if !data.store.default_start[i + 5] || !data.store.default_end[i + 5]}
-					  <button class="btn btn-sm btn-primary" on:click={() => openStore(i + 5)}>Otvori</button>
+					  <button class="btn btn-sm btn-primary" onclick={() => openStore(i + 5)}>Otvori</button>
 					{:else}
-					  <button class="btn btn-sm btn-error" on:click={() => closeStore(i + 5)}>Zatvori</button>
+					  <button class="btn btn-sm btn-error" onclick={() => closeStore(i + 5)}>Zatvori</button>
 					{/if}
 				  </td>
 				</tr>
@@ -319,7 +321,7 @@
 						type="time" 
 						class={inputClass} 
 						value={data.store.default_start[i]?.slice(0, -3)}
-						on:change={(ev) => updateStoreHours(i, 'default_start', ev.target.value)}
+						onchange={(ev) => updateStoreHours(i, 'default_start', ev.target.value)}
 					  >
 					{:else}
 					  <span class="text-error">Zatvoreno</span>
@@ -331,7 +333,7 @@
 						type="time" 
 						class={inputClass} 
 						value={data.store.default_end[i]?.slice(0, -3)}
-						on:change={(ev) => updateStoreHours(i, 'default_end', ev.target.value)}
+						onchange={(ev) => updateStoreHours(i, 'default_end', ev.target.value)}
 					  >
 					{:else}
 					  <span class="text-error">Zatvoreno</span>
@@ -339,9 +341,9 @@
 				  </td>
 				  <td>
 					{#if !data.store.default_start[i] || !data.store.default_end[i]}
-					  <button class="btn btn-sm btn-primary" on:click={() => openStore(i)}>Otvori</button>
+					  <button class="btn btn-sm btn-primary" onclick={() => openStore(i)}>Otvori</button>
 					{:else}
-					  <button class="btn btn-sm btn-error" on:click={() => closeStore(i)}>Zatvori</button>
+					  <button class="btn btn-sm btn-error" onclick={() => closeStore(i)}>Zatvori</button>
 					{/if}
 				  </td>
 				</tr>
@@ -350,8 +352,8 @@
 		  </tbody>
 		</table>
 		<div class="mt-4 flex justify-end gap-4">
-		  <button class="btn btn-primary" on:click={saveChanges}>Spremi</button>
-		  <button class="btn btn-outline btn-error" on:click={resetChanges}>Poništi promjene</button>
+		  <button class="btn btn-primary" onclick={saveChanges}>Spremi</button>
+		  <button class="btn btn-outline btn-error" onclick={resetChanges}>Poništi promjene</button>
 		</div>
 	  {:else}
 		<div class="overflow-x-auto">
@@ -361,7 +363,7 @@
 			<input type="date" bind:value={newSpecialDay.date} class={inputClass} style="width: 10rem">
 			<input type="time" bind:value={newSpecialDay.start} class={inputClass}>
 			<input type="time" bind:value={newSpecialDay.end} class={inputClass}>
-			<button class="btn btn-primary" on:click={addSpecialDay}>Dodaj</button>
+			<button class="btn btn-primary" onclick={addSpecialDay}>Dodaj</button>
 		  </div>
 		</div>
 		
@@ -372,8 +374,8 @@
 			  <input type="date" bind:value={editingSpecialDay.date} class={inputClass} style="width: 10rem">
 			  <input type="time" bind:value={editingSpecialDay.start} class={inputClass}>
 			  <input type="time" bind:value={editingSpecialDay.end} class={inputClass}>
-			  <button class="btn btn-primary" on:click={saveEditSpecialDay}>Spremi</button>
-			  <button class="btn btn-ghost" on:click={() => editingSpecialDay = null}>Odustani</button>
+			  <button class="btn btn-primary" onclick={saveEditSpecialDay}>Spremi</button>
+			  <button class="btn btn-ghost" onclick={() => editingSpecialDay = null}>Odustani</button>
 			</div>
 		  </div>
 		{/if}
@@ -397,8 +399,8 @@
 					{/if}
 				  </td>
 				  <td>
-					<button class="btn btn-sm btn-primary mr-2" on:click={() => startEditSpecialDay(storeDay)}>Uredi</button>
-					<button class="btn btn-sm btn-error" on:click={() => deleteSpecialDay(storeDay, index)}>Obriši</button>
+					<button class="btn btn-sm btn-primary mr-2" onclick={() => startEditSpecialDay(storeDay)}>Uredi</button>
+					<button class="btn btn-sm btn-error" onclick={() => deleteSpecialDay(storeDay, index)}>Obriši</button>
 				  </td>
 				</tr>
 			  {/each}
@@ -415,8 +417,8 @@
         <div class="bg-base-100 p-6 rounded-lg">
             <h3 class="text-lg font-bold mb-4">Jeste li sigurni da želite obrisati ovaj dućan?</h3>
             <div class="flex justify-end">
-                <button class="btn btn-outline mr-2" on:click={() => isDeleteModalOpen = false}>Odustani</button>
-                <button class="btn btn-error" on:click={handleDelete}>Obriši</button>
+                <button class="btn btn-outline mr-2" onclick={() => isDeleteModalOpen = false}>Odustani</button>
+                <button class="btn btn-error" onclick={handleDelete}>Obriši</button>
             </div>
         </div>
     </div>

@@ -5,19 +5,25 @@ import { distance } from '$lib/distance';
 
 let mounted = false;
 /** @type {GeolocationCoordinates?} */
-let coords;
+let coords = $state();
 let selectedDate = new Date().toISOString().split('T')[0]; // default to today's date
 /** @type {L.Map} */
 let map;
 /** @type {L.LayerGroup} */
 let mapLayerGroup;
-/** @type {import('./$types').PageData} */
-export let data;
-let { stores } = data;
+
+    /**
+     * @typedef {Object} Props
+     * @property {import('./$types').PageData} data
+     */
+
+    /** @type {Props} */
+    let { data } = $props();
+let { stores } = $state(data);
 /** @type {typeof stores} */
 let originalStores = JSON.parse(JSON.stringify(stores));
 // @ts-ignore
-$: storesToShow = stores.map(store => {if(coords?.latitude){store.distance = distance(coords.latitude, coords.longitude, store.coordinate_x, store.coordinate_y)};return store;}).sort((a, b) => a.distance - b.distance);
+let storesToShow = $derived(stores.map(store => {if(coords?.latitude){store.distance = distance(coords.latitude, coords.longitude, store.coordinate_x, store.coordinate_y)};return store;}).sort((a, b) => a.distance - b.distance));
 
 onMount(() => {
     // @ts-ignore
@@ -92,12 +98,12 @@ changeDate();
 
 <label class="input input-bordered input-error flex items-center gap-2 w-[208px]">
     Datum
-    <input type="date" class="grow" value={new Date().toISOString().split('T')[0]} on:change={handleDateChange}>
+    <input type="date" class="grow" value={new Date().toISOString().split('T')[0]} onchange={handleDateChange}>
 </label>
 
 <div class="overflow-x-auto">
     <div id="map" style="height: 500px; width: 100%;"></div>
-    <table class="table mx-auto lg:w-4/5">
+    <table class="table mx-auto lg:w-4/5"><tbody>
         <tr>
             <th class="hidden"></th>
             <th>Najbliži <i>otvoreni</i> dućani</th>
@@ -114,5 +120,5 @@ changeDate();
                 <td>{store.current_start?.slice(0, -3)} - {store.current_end?.slice(0, -3)}</td>
             </tr>
     {/each}
-    </table>
+    </tbody></table>
 </div>

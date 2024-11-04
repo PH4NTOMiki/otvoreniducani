@@ -1,10 +1,12 @@
 <script>
+    import { preventDefault } from 'svelte/legacy';
+
     import { login } from '$lib/auth';
     import { goto } from '$app/navigation';
 	import { LogIn } from 'lucide-svelte';
 
-    let username = '';
-    let password = '';
+    let username = $state('');
+    let password = $state('');
 
     async function handleSubmit() {
         if (await login(username, password)) {
@@ -30,7 +32,7 @@
     <!-- Right Side - Login Form -->
     <div class="flex flex-col justify-center items-center p-8 md:w-1/2">
         <h2 class="text-3xl font-bold text-indigo-600 mb-8">Prijava</h2>
-        <form on:submit|preventDefault={handleSubmit}>
+        <form onsubmit={preventDefault(handleSubmit)}>
             <div class="mb-6">
                 <label for="username" class="block text-gray-700 text-sm font-semibold mb-2">Korisničko ime</label>
                 <input bind:value={username} id="username" class="w-full px-4 py-2 border rounded-lg text-gray-700 focus:outline-none focus:border-indigo-500" placeholder="korisnik" required />

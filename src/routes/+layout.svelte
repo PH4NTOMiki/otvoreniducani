@@ -6,6 +6,13 @@
     import { browser } from '$app/environment';
     import { fetchCache } from "$lib/db";
 	import { LogOut } from "lucide-svelte";
+  /**
+   * @typedef {Object} Props
+   * @property {import('svelte').Snippet} [children]
+   */
+
+  /** @type {Props} */
+  let { children } = $props();
 
     async function handleLogout() {
         await logout();
@@ -13,7 +20,7 @@
     }
   </script>
   
-  <!-- svelte-ignore missing-declaration -->
+  <!-- svelte-ignore missing_declaration -->
   <svelte:head>
     <title>Otvoreni Dućani</title>  
     {#if fetchCache}
@@ -30,8 +37,8 @@
           <a href="/upravljanje/korisnici" class="btn btn-ghost text-xl">Korisnici</a>
         {/if}
         <h1 class="font-bold">Dobrodošli, {$user.username}!</h1>&nbsp;&nbsp;
-        <button on:click={handleLogout} class="btn btn-secondary"><LogOut class="mr-2" size={18} />Odjava</button>
+        <button onclick={handleLogout} class="btn btn-secondary"><LogOut class="mr-2" size={18} />Odjava</button>
       {/if}
     </div>
   </div>
-  <slot />
+  {@render children?.()}

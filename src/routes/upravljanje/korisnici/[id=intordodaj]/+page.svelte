@@ -1,17 +1,25 @@
 <script>
+    import { preventDefault } from 'svelte/legacy';
+
     // @ts-nocheck
-    /** @type {import('./$types').PageData} */
-    export let data;
+    
     import { goto } from '$app/navigation';
     import { User, Mail, Shield, Store, Save, Trash2, ArrowLeft, Plus, X, Lock } from 'lucide-svelte';
+    /**
+     * @typedef {Object} Props
+     * @property {import('./$types').PageData} data
+     */
 
-    let userEdit = data.userEdit ? { ...data.userEdit, stores_owned: [...data.userEdit.stores_owned] } : { username: '', email: '', role: 'user', stores_owned: [] };
-    let isLoading = false;
-    let errorMessage = '';
-    let newStore = '';
+    /** @type {Props} */
+    let { data } = $props();
+
+    let userEdit = $state(data.userEdit ? { ...data.userEdit, stores_owned: [...data.userEdit.stores_owned] } : { username: '', email: '', role: 'user', stores_owned: [] });
+    let isLoading = $state(false);
+    let errorMessage = $state('');
+    let newStore = $state('');
     let isAddMode = !data.userEdit;
-    let newPassword = '';
-    let confirmPassword = '';
+    let newPassword = $state('');
+    let confirmPassword = $state('');
 
     function addStore() {
         if (newStore && !userEdit.stores_owned.includes(newStore)) {
@@ -96,7 +104,7 @@
                 {isAddMode ? 'Dodaj novog korisnika' : `Uredi korisnika: ${userEdit.username}`}
             </h2>
 
-            <form on:submit|preventDefault={saveUser} class="space-y-6">
+            <form onsubmit={preventDefault(saveUser)} class="space-y-6">
                 <div class="form-control">
                     <label for="username" class="label">
                         <span class="label-text flex items-center">
@@ -161,7 +169,7 @@
                         {#each userEdit.stores_owned as store}
                             <div class="badge badge-primary badge-lg gap-2">
                                 {store}
-                                <button type="button" class="btn btn-ghost btn-xs" on:click={() => removeStore(store)}>
+                                <button type="button" class="btn btn-ghost btn-xs" onclick={() => removeStore(store)}>
                                     <X size={14} />
                                 </button>
                             </div>
@@ -175,7 +183,7 @@
                             placeholder="Dodaj dućan..." 
                             class="input input-bordered flex-grow"
                         />
-                        <button type="button" class="btn btn-primary" on:click={addStore}>
+                        <button type="button" class="btn btn-primary" onclick={addStore}>
                             <Plus size={18} />
                             Dodaj
                         </button>
@@ -191,7 +199,7 @@
 
                 <div class="flex justify-between items-center pt-4">
                     {#if !isAddMode}
-                        <button type="button" on:click={deleteUser} class="btn btn-error" disabled={isLoading}>
+                        <button type="button" onclick={deleteUser} class="btn btn-error" disabled={isLoading}>
                             <Trash2 class="mr-2" size={18} />
                             Izbriši korisnika
                         </button>

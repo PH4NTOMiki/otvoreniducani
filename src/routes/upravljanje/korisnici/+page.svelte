@@ -1,15 +1,21 @@
 <script>
-    /** @type {import('./$types').PageData} */
-    export let data;
+    
     import { fade, fly } from 'svelte/transition';
     import { Users, Search, UserPlus } from 'lucide-svelte';
-    
-    let searchTerm = '';
+    /**
+     * @typedef {Object} Props
+     * @property {import('./$types').PageData} data
+     */
 
-    $: filteredUsers = data.users.filter(user => 
+    /** @type {Props} */
+    let { data } = $props();
+    
+    let searchTerm = $state('');
+
+    let filteredUsers = $derived(data.users.filter(user => 
         user.username.toLowerCase().includes(searchTerm.toLowerCase()) || 
         user.email.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    ));
 </script>
 
 <div class="min-h-screen bg-base-200 py-12">

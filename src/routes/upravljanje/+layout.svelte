@@ -1,7 +1,7 @@
 <script>
     import { onMount } from 'svelte';
     import { user, initAuth } from '$lib/auth';
-    export let data;
+    let { data, children } = $props();
 
     if (data.user) $user = data.user;
     onMount(async () => {
@@ -9,4 +9,4 @@
     });
 </script>
 
-<slot />
+{@render children?.()}

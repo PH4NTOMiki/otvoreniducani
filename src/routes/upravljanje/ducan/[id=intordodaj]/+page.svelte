@@ -1,27 +1,29 @@
 <script>
+    import { preventDefault } from 'svelte/legacy';
+
     import { goto, invalidate } from '$app/navigation';
     import { page } from '$app/stores';
 	import { onMount } from 'svelte';
     import { fade } from 'svelte/transition';
 
-    export let data;
+    let { data } = $props();
 
-    let formData = {
+    let formData = $state({
         id: null,
         title: '',
         address: '',
         town: '',
         coordinate_x: '',
         coordinate_y: ''
-    };
+    });
 
     // If provided, we're in edit mode
     // @ts-ignore
     if(data.store?.id) formData = data.store;
 
-    let formError = '';
-    let formSuccess = '';
-    let isDeleteModalOpen = $page.url.hash === '#izbrisi';
+    let formError = $state('');
+    let formSuccess = $state('');
+    let isDeleteModalOpen = $state($page.url.hash === '#izbrisi');
 
     onMount(() => {
         // now using $page.url.hash instead of location.hash when setting isDeleteModalOpen
@@ -92,7 +94,7 @@
         {data.store?.id ? 'Uredi' : 'Dodaj novi'} <span class="italic text-primary">dućan</span>
     </h2>
 
-    <form method="POST" on:submit|preventDefault={handleSubmit} class="bg-base-200 shadow-xl rounded-lg p-6">
+    <form method="POST" onsubmit={preventDefault(handleSubmit)} class="bg-base-200 shadow-xl rounded-lg p-6">
         <div class="form-control w-full mb-4">
             <label for="title" class="label">
                 <span class="label-text">Naziv dućana</span>
@@ -168,7 +170,7 @@
         </button>
 
         {#if data.store?.id}
-            <button type="button" class="btn btn-error w-full mt-4" on:click={() => isDeleteModalOpen = true}>
+            <button type="button" class="btn btn-error w-full mt-4" onclick={() => isDeleteModalOpen = true}>
                 Obriši dućan
             </button>
         {/if}
@@ -198,8 +200,8 @@
         <div class="bg-base-100 p-6 rounded-lg">
             <h3 class="text-lg font-bold mb-4">Jeste li sigurni da želite obrisati ovaj dućan?</h3>
             <div class="flex justify-end">
-                <button class="btn btn-outline mr-2" on:click={closeDeleteModal}>Odustani</button>
-                <button class="btn btn-error" on:click={handleDelete}>Obriši</button>
+                <button class="btn btn-outline mr-2" onclick={closeDeleteModal}>Odustani</button>
+                <button class="btn btn-error" onclick={handleDelete}>Obriši</button>
             </div>
         </div>
     </div>

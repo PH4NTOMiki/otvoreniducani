@@ -1,9 +1,15 @@
 <script>
 	import { CirclePlus } from 'lucide-svelte';
-    /** @type {import('./$types').PageData} */
-    export let data;
+    
     import { fade, fly } from 'svelte/transition';
-    let searchTerm = '';
+    /**
+     * @typedef {Object} Props
+     * @property {import('./$types').PageData} data
+     */
+
+    /** @type {Props} */
+    let { data } = $props();
+    let searchTerm = $state('');
 </script>
 
 <div class="container mx-auto px-4 py-12 max-w-4xl">
