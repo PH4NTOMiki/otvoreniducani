@@ -5,6 +5,7 @@ import { distance } from '$lib/distance';
 
 let mounted = false;
 /** @type {GeolocationCoordinates?} */
+// @ts-ignore
 let coords = $state();
 let selectedDate = new Date().toISOString().split('T')[0]; // default to today's date
 /** @type {L.Map} */
